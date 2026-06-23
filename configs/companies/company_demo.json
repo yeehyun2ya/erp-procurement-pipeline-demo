@@ -1,0 +1,25 @@
+{
+  "company_id": "COMPANY-DEMO",
+  "company_name": "Demo Manufacturing Co.",
+  "base_currency": "KRW",
+  "validation_policy_name": "demo_procurement_validation",
+  "amount_policy": {
+    "high_value_purchase_threshold": 1000000,
+    "unit_price_difference_warning_ratio": 0.15
+  },
+  "delivery_policy": {
+    "urgent_delivery_days": 7,
+    "allowed_delay_days": 2
+  },
+  "supplier_policy": {
+    "minimum_quote_count": 3,
+    "requires_new_supplier_review": true
+  },
+  "approval_route_policy": {
+    "route_hints": [
+      "standard_review",
+      "manager_review",
+      "executive_review"
+    ]
+  }
+}

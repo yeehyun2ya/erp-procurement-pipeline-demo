@@ -16,6 +16,14 @@ The same quote data can follow different validation and approval paths depending
 - Keep each issue inside its agreed scope.
 - Explain changes in beginner-friendly language.
 
+## Comment Style
+
+- Keep code identifiers, file names, function names, and class names in English.
+- Korean comments are allowed when they help a beginner understand tests or important code.
+- For test comments, prefer Korean `준비 / 실행 / 검증` wording instead of `Given / When / Then`.
+- Do not write comments that simply repeat what the code already says.
+- Keep error messages and public API names in English by default.
+
 ## Current Issue Scope
 
 Issue 2 defines the input JSON shape only.

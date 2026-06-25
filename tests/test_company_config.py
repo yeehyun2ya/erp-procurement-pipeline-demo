@@ -36,6 +36,10 @@ def test_load_company_config_keeps_policy_thresholds() -> None:
     assert company_config.amount_policy.high_value_purchase_threshold == 1_000_000
     assert company_config.amount_policy.unit_price_difference_warning_ratio == 0.15
     assert company_config.amount_policy.robust_z_score_threshold == 3.5
+    assert (
+        company_config.amount_policy.historical_unit_price_robust_z_score_threshold
+        == 3.5
+    )
     assert company_config.delivery_policy.urgent_delivery_days == 7
     assert company_config.delivery_policy.allowed_delay_days == 2
     assert company_config.supplier_policy.minimum_quote_count == 3

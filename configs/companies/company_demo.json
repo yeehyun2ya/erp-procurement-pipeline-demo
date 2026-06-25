@@ -6,7 +6,8 @@
   "amount_policy": {
     "high_value_purchase_threshold": 1000000,
     "unit_price_difference_warning_ratio": 0.15,
-    "robust_z_score_threshold": 3.5
+    "robust_z_score_threshold": 3.5,
+    "historical_unit_price_robust_z_score_threshold": 3.5
   },
   "delivery_policy": {
     "urgent_delivery_days": 7,

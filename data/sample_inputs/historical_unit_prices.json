@@ -1,0 +1,40 @@
+{
+  "company_id": "COMPANY-DEMO",
+  "base_currency": "KRW",
+  "item": {
+    "name": "Hex bolt M12",
+    "category": "Industrial fasteners"
+  },
+  "purchase_records": [
+    {
+      "purchase_id": "PO-2025-0001",
+      "supplier_id": "SUP-ALPHA",
+      "unit_price": 820,
+      "purchased_at": "2025-09-10"
+    },
+    {
+      "purchase_id": "PO-2025-0002",
+      "supplier_id": "SUP-BRAVO",
+      "unit_price": 840,
+      "purchased_at": "2025-10-02"
+    },
+    {
+      "purchase_id": "PO-2025-0003",
+      "supplier_id": "SUP-CHARLIE",
+      "unit_price": 850,
+      "purchased_at": "2025-11-18"
+    },
+    {
+      "purchase_id": "PO-2025-0004",
+      "supplier_id": "SUP-ALPHA",
+      "unit_price": 870,
+      "purchased_at": "2025-12-04"
+    },
+    {
+      "purchase_id": "PO-2025-0005",
+      "supplier_id": "SUP-BRAVO",
+      "unit_price": 890,
+      "purchased_at": "2026-01-15"
+    }
+  ]
+}

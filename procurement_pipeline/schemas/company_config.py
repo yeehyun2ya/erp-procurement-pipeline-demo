@@ -7,6 +7,7 @@ class AmountPolicy(BaseModel):
     high_value_purchase_threshold: int = Field(gt=0)
     unit_price_difference_warning_ratio: float = Field(ge=0, le=1)
     robust_z_score_threshold: float = Field(gt=0)
+    historical_unit_price_robust_z_score_threshold: float = Field(gt=0)
 
 
 class DeliveryPolicy(BaseModel):

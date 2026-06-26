@@ -31,9 +31,10 @@ def test_load_historical_unit_prices_reads_sample_json() -> None:
     assert historical_prices.company_id == "COMPANY-DEMO"
     assert historical_prices.base_currency == "KRW"
     assert historical_prices.item.name == "Hex bolt M12"
-    assert len(historical_prices.purchase_records) >= 3
+    assert len(historical_prices.purchase_records) == 10
     assert historical_prices.purchase_records[0].purchase_id == "PO-2025-0001"
-    assert historical_prices.purchase_records[0].unit_price == 820
+    assert historical_prices.purchase_records[0].unit_price == 1_180
+    assert historical_prices.purchase_records[0].quantity == 5
 
 
 def test_baseline_validation_returns_normal_when_quotes_match_history() -> None:
@@ -90,7 +91,7 @@ def test_baseline_validation_warns_when_quote_exceeds_history() -> None:
     assert issue.related_supplier_id == "SUP-CHARLIE"
     assert issue.related_field == "unit_price"
     assert issue.observed_value == 1_500
-    assert issue.reference_value == 850.0
+    assert issue.reference_value == 845.0
     assert (
         issue.score
         >= company_config.amount_policy.historical_unit_price_robust_z_score_threshold
@@ -132,7 +133,7 @@ def test_baseline_validation_uses_ratio_fallback_when_mad_is_zero() -> None:
     company_config = load_company_config(Path("configs/companies/company_demo.json"))
     same_price_records = tuple(
         record.model_copy(update={"unit_price": 850})
-        for record in historical_prices.purchase_records[:3]
+        for record in historical_prices.purchase_records[:8]
     )
     zero_mad_history = historical_prices.model_copy(
         update={"purchase_records": same_price_records}
@@ -228,6 +229,7 @@ def test_historical_purchase_record_rejects_negative_unit_price(tmp_path: Path) 
               "purchase_id": "PO-2025-0001",
               "supplier_id": "SUP-ALPHA",
               "unit_price": -1,
+              "quantity": 20,
               "purchased_at": "2025-09-10"
             }
           ]

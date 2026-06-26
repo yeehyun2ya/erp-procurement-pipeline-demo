@@ -3,7 +3,10 @@ from statistics import median
 from typing import Final
 
 from procurement_pipeline.schemas.company_config import CompanyConfig
-from procurement_pipeline.schemas.historical_price import HistoricalUnitPriceInput
+from procurement_pipeline.schemas.historical_price import (
+    HistoricalPurchaseRecord,
+    HistoricalUnitPriceInput,
+)
 from procurement_pipeline.schemas.quote_input import QuoteComparisonInput, SupplierQuote
 from procurement_pipeline.schemas.validation_result import ValidationIssue, ValidationResult
 
@@ -52,7 +55,7 @@ def validate_quote_against_historical_baseline(
     _ensure_items_match(quote_input, historical_prices)
 
     issues = _find_historical_baseline_issues(
-        quote_input.quotes,
+        quote_input,
         historical_prices,
         company_config,
     )
@@ -105,11 +108,15 @@ def _ensure_items_match(
 
 
 def _find_historical_baseline_issues(
-    quotes: tuple[SupplierQuote, ...],
+    quote_input: QuoteComparisonInput,
     historical_prices: HistoricalUnitPriceInput,
     company_config: CompanyConfig,
 ) -> tuple[ValidationIssue, ...]:
-    records = historical_prices.purchase_records
+    records = _filter_records_by_quantity(
+        historical_prices,
+        quote_input.quantity,
+        company_config,
+    )
     if len(records) < MIN_HISTORICAL_RECORD_COUNT:
         return ()
 
@@ -119,7 +126,7 @@ def _find_historical_baseline_issues(
 
     if median_absolute_deviation == 0:
         return _find_ratio_fallback_issues(
-            quotes,
+            quote_input.quotes,
             reference_value,
             company_config.amount_policy.unit_price_difference_warning_ratio,
         )
@@ -129,13 +136,33 @@ def _find_historical_baseline_issues(
     )
     return tuple(
         _build_issue(quote, reference_value, robust_z_score)
-        for quote in quotes
+        for quote in quote_input.quotes
         if (robust_z_score := _calculate_robust_z_score(
             quote.unit_price,
             reference_value,
             median_absolute_deviation,
         ))
         >= threshold
+    )
+
+
+def _filter_records_by_quantity(
+    historical_prices: HistoricalUnitPriceInput,
+    quote_quantity: int,
+    company_config: CompanyConfig,
+) -> tuple[HistoricalPurchaseRecord, ...]:
+    lower_bound = (
+        quote_quantity
+        * company_config.amount_policy.historical_quantity_lower_multiplier
+    )
+    upper_bound = (
+        quote_quantity
+        * company_config.amount_policy.historical_quantity_upper_multiplier
+    )
+    return tuple(
+        record
+        for record in historical_prices.purchase_records
+        if lower_bound <= record.quantity <= upper_bound
     )
 
 

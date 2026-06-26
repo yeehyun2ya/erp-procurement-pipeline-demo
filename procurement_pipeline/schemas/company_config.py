@@ -1,4 +1,7 @@
-from pydantic import BaseModel, ConfigDict, Field
+from typing import Self
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic_core import PydanticCustomError
 
 
 class AmountPolicy(BaseModel):
@@ -8,6 +11,22 @@ class AmountPolicy(BaseModel):
     unit_price_difference_warning_ratio: float = Field(ge=0, le=1)
     robust_z_score_threshold: float = Field(gt=0)
     historical_unit_price_robust_z_score_threshold: float = Field(gt=0)
+    historical_quantity_lower_multiplier: float = Field(gt=0)
+    historical_quantity_upper_multiplier: float = Field(gt=0)
+
+    @model_validator(mode="after")
+    def ensure_quantity_multiplier_order(self) -> Self:
+        if (
+            self.historical_quantity_lower_multiplier
+            <= self.historical_quantity_upper_multiplier
+        ):
+            return self
+
+        raise PydanticCustomError(
+            "historical_quantity_multiplier_order",
+            "historical_quantity_lower_multiplier must be less than or equal "
+            "to historical_quantity_upper_multiplier",
+        )
 
 
 class DeliveryPolicy(BaseModel):

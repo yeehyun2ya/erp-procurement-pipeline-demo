@@ -16,6 +16,7 @@ class HistoricalPurchaseRecord(BaseModel):
     purchase_id: str
     supplier_id: str
     unit_price: int = Field(ge=0)
+    quantity: int = Field(gt=0)
     purchased_at: date
 
 

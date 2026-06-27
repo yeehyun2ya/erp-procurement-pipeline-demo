@@ -249,6 +249,11 @@ def test_company_config_rejects_inverted_historical_quantity_multipliers(
               "manager_review",
               "executive_review"
             ]
+          },
+          "tco_policy": {
+            "unit_price_weight": 1.0,
+            "shipping_fee_weight": 1.0,
+            "other_costs_weight": 1.0
           }
         }
         """,

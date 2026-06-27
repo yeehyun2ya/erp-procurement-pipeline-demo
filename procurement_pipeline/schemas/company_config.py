@@ -49,6 +49,14 @@ class ApprovalRoutePolicy(BaseModel):
     route_hints: tuple[str, ...] = Field(min_length=1)
 
 
+class TcoPolicy(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    unit_price_weight: float = Field(gt=0)
+    shipping_fee_weight: float = Field(ge=0)
+    other_costs_weight: float = Field(ge=0)
+
+
 class CompanyConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
@@ -60,3 +68,4 @@ class CompanyConfig(BaseModel):
     delivery_policy: DeliveryPolicy
     supplier_policy: SupplierPolicy
     approval_route_policy: ApprovalRoutePolicy
+    tco_policy: TcoPolicy

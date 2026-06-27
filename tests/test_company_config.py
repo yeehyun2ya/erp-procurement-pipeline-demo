@@ -51,6 +51,59 @@ def test_load_company_config_keeps_policy_thresholds() -> None:
         "manager_review",
         "executive_review",
     )
+    assert company_config.tco_policy.unit_price_weight == 1.0
+    assert company_config.tco_policy.shipping_fee_weight == 1.0
+    assert company_config.tco_policy.other_costs_weight == 1.0
+
+
+def test_load_company_config_rejects_invalid_tco_policy(tmp_path: Path) -> None:
+    # 준비: unit_price_weight가 0인 잘못된 TCO 정책 config를 만듭니다.
+    invalid_path = tmp_path / "invalid_tco_policy.json"
+    invalid_path.write_text(
+        """
+        {
+          "company_id": "COMPANY-DEMO",
+          "company_name": "Demo Manufacturing Co.",
+          "base_currency": "KRW",
+          "validation_policy_name": "demo_procurement_validation",
+          "amount_policy": {
+            "high_value_purchase_threshold": 1000000,
+            "unit_price_difference_warning_ratio": 0.15,
+            "robust_z_score_threshold": 3.5,
+            "historical_unit_price_robust_z_score_threshold": 3.5,
+            "historical_quantity_lower_multiplier": 0.5,
+            "historical_quantity_upper_multiplier": 2.0
+          },
+          "delivery_policy": {
+            "urgent_delivery_days": 7,
+            "allowed_delay_days": 2
+          },
+          "supplier_policy": {
+            "minimum_quote_count": 3,
+            "requires_new_supplier_review": true
+          },
+          "approval_route_policy": {
+            "route_hints": [
+              "standard_review",
+              "manager_review",
+              "executive_review"
+            ]
+          },
+          "tco_policy": {
+            "unit_price_weight": 0,
+            "shipping_fee_weight": 1.0,
+            "other_costs_weight": 1.0
+          }
+        }
+        """,
+        encoding="utf-8",
+    )
+
+    # 실행 / 검증: 잘못된 TCO 계수는 schema mismatch로 보고합니다.
+    with pytest.raises(CompanyConfigLoadError) as exc_info:
+        load_company_config(invalid_path)
+
+    assert exc_info.value.reason == "Company config JSON does not match the schema"
 
 
 def test_load_company_config_reports_schema_mismatch(tmp_path: Path) -> None:

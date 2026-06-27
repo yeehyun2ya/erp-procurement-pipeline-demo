@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from statistics import median
 from typing import Final
 
+from procurement_pipeline.nodes.risk_scoring import score_issues_risk
 from procurement_pipeline.schemas.company_config import CompanyConfig
 from procurement_pipeline.schemas.quote_input import QuoteComparisonInput, SupplierQuote
 from procurement_pipeline.schemas.validation_result import ValidationIssue, ValidationResult
@@ -39,13 +40,11 @@ def validate_quote_amounts(
         reference_value=unit_price_median,
         company_config=company_config,
     )
-    risk_level = "warning" if issues else "normal"
-
     return ValidationResult(
         request_id=quote_input.request_id,
         company_id=quote_input.company_id,
         used_policy_name=company_config.validation_policy_name,
-        risk_level=risk_level,
+        risk_level=score_issues_risk(issues),
         issues=issues,
     )
 

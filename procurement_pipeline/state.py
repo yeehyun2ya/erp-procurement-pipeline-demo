@@ -1,11 +1,33 @@
-from typing_extensions import TypedDict
+from typing_extensions import NotRequired, TypedDict
+
+from procurement_pipeline.schemas.company_config import CompanyConfig
+from procurement_pipeline.schemas.quote_input import QuoteComparisonInput
+from procurement_pipeline.schemas.tco_result import TcoCalculationResult
+from procurement_pipeline.schemas.validation_result import ValidationResult
+from procurement_pipeline.schemas.validation_routing_result import (
+    HumanReviewRequestResult,
+    OcrReparseResult,
+    ValidationRoutingResult,
+)
+
+
+PathTrace = tuple[str, ...]
 
 
 class ProcurementState(TypedDict):
-    # State: 그래프 전체를 지나가며 노드들이 공유하는 데이터 상자입니다.
-    quote_id: str
+    quote_input: QuoteComparisonInput
+    company_config: CompanyConfig
+    validation_result: ValidationResult
+    routing_result: NotRequired[ValidationRoutingResult]
+    tco_result: NotRequired[TcoCalculationResult]
+    ocr_reparse_result: NotRequired[OcrReparseResult]
+    human_review_result: NotRequired[HumanReviewRequestResult]
+    path_trace: NotRequired[PathTrace]
 
 
 class ProcurementStateUpdate(TypedDict, total=False):
-    # Node는 State 전체가 아니라 바뀐 값만 부분적으로 반환할 수 있습니다.
-    quote_id: str
+    routing_result: ValidationRoutingResult
+    tco_result: TcoCalculationResult
+    ocr_reparse_result: OcrReparseResult
+    human_review_result: HumanReviewRequestResult
+    path_trace: PathTrace

@@ -1,20 +1,100 @@
+from typing import assert_never
+
 from langgraph.graph import END, START, StateGraph
+from langgraph.graph.state import CompiledStateGraph
 
-from procurement_pipeline.nodes.placeholders import (
-    prepare_decision_placeholder,
-    receive_quote_placeholder,
+from procurement_pipeline.nodes.tco_calculation import calculate_supplier_tco
+from procurement_pipeline.nodes.validation_routing import (
+    build_human_review_request_result,
+    build_ocr_reparse_result,
+    build_validation_routing_result,
 )
-from procurement_pipeline.state import ProcurementState
+from procurement_pipeline.schemas.validation_routing_result import ValidationRouteAction
+from procurement_pipeline.state import ProcurementState, ProcurementStateUpdate
 
 
-# StateGraph: 같은 State 모양을 들고 노드와 엣지를 연결하는 LangGraph 그래프 빌더입니다.
-builder = StateGraph(ProcurementState)
-builder.add_node("receive_quote_placeholder", receive_quote_placeholder)
-builder.add_node("prepare_decision_placeholder", prepare_decision_placeholder)
+def route_validation(state: ProcurementState) -> ProcurementStateUpdate:
+    return {
+        "routing_result": build_validation_routing_result(
+            state["validation_result"],
+        ),
+        "path_trace": _append_path(state, "route_validation"),
+    }
 
-# Edge: 한 단계가 끝난 뒤 다음 노드로 이동하는 연결선입니다.
-builder.add_edge(START, "receive_quote_placeholder")
-builder.add_edge("receive_quote_placeholder", "prepare_decision_placeholder")
-builder.add_edge("prepare_decision_placeholder", END)
 
-graph = builder.compile()
+def calculate_tco(state: ProcurementState) -> ProcurementStateUpdate:
+    return {
+        "tco_result": calculate_supplier_tco(
+            state["quote_input"],
+            state["company_config"],
+        ),
+        "path_trace": _append_path(state, "tco_calculation"),
+    }
+
+
+def request_human_review(state: ProcurementState) -> ProcurementStateUpdate:
+    return {
+        "human_review_result": build_human_review_request_result(
+            state["validation_result"],
+        ),
+        "path_trace": _append_path(state, "human_review_request"),
+    }
+
+
+def request_ocr_reparse(state: ProcurementState) -> ProcurementStateUpdate:
+    return {
+        "ocr_reparse_result": build_ocr_reparse_result(
+            state["validation_result"],
+        ),
+        "path_trace": _append_path(state, "ocr_reparse"),
+    }
+
+
+def select_validation_route_target(state: ProcurementState) -> str:
+    return _target_for_route(state["routing_result"].selected_route)
+
+
+def build_graph() -> CompiledStateGraph:
+    builder = StateGraph(ProcurementState)
+    builder.add_node("route_validation", route_validation)
+    builder.add_node("tco_calculation", calculate_tco)
+    builder.add_node("human_review_request", request_human_review)
+    builder.add_node("ocr_reparse", request_ocr_reparse)
+
+    builder.add_edge(START, "route_validation")
+    builder.add_conditional_edges(
+        "route_validation",
+        select_validation_route_target,
+        _target_map(),
+    )
+    builder.add_edge("tco_calculation", END)
+    builder.add_edge("human_review_request", END)
+    builder.add_edge("ocr_reparse", END)
+    return builder.compile()
+
+
+def _target_map() -> dict[str, str]:
+    return {
+        "tco_calculation": "tco_calculation",
+        "human_review_request": "human_review_request",
+        "ocr_reparse": "ocr_reparse",
+    }
+
+
+def _target_for_route(route_action: ValidationRouteAction) -> str:
+    match route_action:
+        case "proceed_tco":
+            return "tco_calculation"
+        case "request_human_review":
+            return "human_review_request"
+        case "reparse_ocr":
+            return "ocr_reparse"
+        case unreachable:
+            assert_never(unreachable)
+
+
+def _append_path(state: ProcurementState, node_name: str) -> tuple[str, ...]:
+    return (*state.get("path_trace", ()), node_name)
+
+
+graph = build_graph()

@@ -45,9 +45,9 @@ C사: 허용 범위 초과 -> HITL mock 요청
 
 ## Current Status
 
-현재 구현은 이슈 10, RFQ 원안 대비 공급업체 응답 차이 기반 회사별 라우팅까지 포함합니다.
+현재 구현은 이슈 11, 동일 견적 JSON을 A/B/C 회사 config로 각각 실행해 서로 다른 경로를 비교하는 데모 출력까지 포함합니다.
 
-입력 JSON schema, 회사 config schema, 이상치 검증, 과거 단가 baseline 검증, risk scoring, TCO 계산, `risk_level` 기반 공통 graph 분기, RFQ 차이 비교, 회사별 tolerance route, RFQ 재전송 mock이 추가되었습니다.
+입력 JSON schema, 회사 config schema, 이상치 검증, 과거 단가 baseline 검증, risk scoring, TCO 계산, `risk_level` 기반 공통 graph 분기, RFQ 차이 비교, 회사별 tolerance route, RFQ 재전송 mock, 동일 견적 JSON 기반 A/B/C 비교 출력이 추가되었습니다.
 
 현재 구현된 주요 처리 재료:
 
@@ -64,6 +64,7 @@ LangGraph conditional edge
 RFQ 원안 대비 응답 차이 결과
 RFQ 재전송 mock 결과
 회사별 A/B/C config sample
+동일 견적 JSON 기반 A/B/C 비교 출력
 ```
 
 ## Design Principles
@@ -71,7 +72,7 @@ RFQ 재전송 mock 결과
 - 노드는 회사를 몰라야 합니다.
 - 공통 검증 분기와 회사별 정책 분기를 섞지 않습니다.
 - `risk_level`은 회사 정책이 아니라 입력 신뢰도 신호로 봅니다.
-- 회사별 규칙은 다음 단계에서 config 파일로 분리합니다.
+- 회사별 규칙은 config 파일로 분리합니다.
 - 실제 분기는 노드 내부가 아니라 LangGraph conditional edge에서 처리합니다.
 - LLM/OCR/ERP 같은 외부 연동은 mock과 adapter 경계를 나눠 단계적으로 붙입니다.
 
@@ -134,18 +135,18 @@ PowerShell에서 `Activate.ps1` 실행이 막힐 수 있으므로, 이 프로젝
 
 ## Run
 
-A/B/C 샘플 견적과 회사 config를 읽고 RFQ 차이 기반 graph를 실행합니다.
+동일 견적 JSON과 A/B/C 회사 config를 각각 조합해 graph를 실행합니다.
 
 ```powershell
 .\.venv\Scripts\python.exe -m procurement_pipeline.run_graph
 ```
 
-정상 출력에는 각 회사의 `rfq_difference_result`와 `path_trace`가 포함됩니다.
+정상 출력은 회사별 JSONL 요약 3줄입니다. 각 줄에는 공통 견적 경로, 실행 회사, 선택 route, 최종 경로가 포함됩니다.
 
 ```text
-COMPANY-A ... 'path_trace': ('route_validation', 'rfq_difference', 'tco_calculation')
-COMPANY-B ... 'path_trace': ('route_validation', 'rfq_difference', 'rfq_resend')
-COMPANY-C ... 'path_trace': ('route_validation', 'rfq_difference', 'human_review_request')
+{"company_id":"COMPANY-A", ... "final_outcome":"tco_calculation"}
+{"company_id":"COMPANY-B", ... "final_outcome":"rfq_resend"}
+{"company_id":"COMPANY-C", ... "final_outcome":"human_review_request"}
 ```
 
 ## Test
@@ -157,7 +158,7 @@ COMPANY-C ... 'path_trace': ('route_validation', 'rfq_difference', 'human_review
 현재 브랜치 기준 정상 결과:
 
 ```text
-58 passed
+61 passed
 ```
 
 ## Roadmap
@@ -172,10 +173,11 @@ COMPANY-C ... 'path_trace': ('route_validation', 'rfq_difference', 'human_review
 - 이슈 8: TCO 계산
 - 이슈 9: robust z-score 기반 OCR 재파싱/HITL 공통 검증 분기
 - 이슈 10: RFQ 원안 대비 공급업체 응답 차이 기반 회사별 라우팅
-- 이슈 11: 외부 위임 mock
-- 이슈 12: FastAPI + HTML 목업 연결
-- 이슈 13: TCO 산식 고도화
-- 이슈 14: 단가 sanity check 노드
+- 이슈 11: 동일 견적 JSON 회사별 분기 시연
+- 이슈 12: 외부 위임 mock
+- 이슈 13: FastAPI + HTML 목업 연결
+- 이슈 14: TCO 산식 고도화
+- 이슈 15: 단가 sanity check 노드
 
 ## Not Built Yet
 
@@ -186,7 +188,7 @@ COMPANY-C ... 'path_trace': ('route_validation', 'rfq_difference', 'human_review
 
 ## Next Issue Candidate
 
-### 이슈 11: 외부 위임 mock
+### 이슈 12: 외부 위임 mock
 
 목표는 검증 결과나 회사 정책에 따라 외부 시스템에 위임해야 하는 흐름을 mock으로 표현하는 것입니다.
 

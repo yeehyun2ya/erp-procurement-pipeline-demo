@@ -26,6 +26,8 @@ The same quote data can follow different validation and approval paths depending
 
 ## Current Issue Scope
 
-Issue 2 defines the input JSON shape only.
+Issue 11 demonstrates company-specific branching with the same quote data.
 
-Do not add anomaly detection, LLM calls, FastAPI, human-in-the-loop flow, TCO calculation, company config files, or company-specific conditional edges in this issue.
+Use one common quote JSON for the business quote data. Each demo execution reads that quote JSON and one company config, then the comparison runner calls the same execution for A/B/C configs.
+
+Do not add LLM calls, FastAPI, real external ERP integration, or real approve/reject human decision handling in this issue.

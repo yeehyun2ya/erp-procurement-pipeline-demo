@@ -23,6 +23,13 @@ class SupplierQuote(BaseModel):
     memo: str
 
 
+class RfqOriginalTerms(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    expected_unit_price: int = Field(gt=0)
+    expected_delivery_date: date
+
+
 class QuoteComparisonInput(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -31,4 +38,5 @@ class QuoteComparisonInput(BaseModel):
     base_currency: str
     item: PurchaseItem
     quantity: int = Field(gt=0)
+    rfq_terms: RfqOriginalTerms
     quotes: tuple[SupplierQuote, ...] = Field(min_length=1)

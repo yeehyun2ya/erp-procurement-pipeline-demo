@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from procurement_pipeline.load_company_config import (
     CompanyConfigLoadError,
@@ -9,6 +10,9 @@ from procurement_pipeline.load_company_config import (
 
 
 SAMPLE_CONFIG_PATH = Path("configs/companies/company_demo.json")
+COMPANY_A_CONFIG_PATH = Path("configs/companies/company_a.json")
+COMPANY_B_CONFIG_PATH = Path("configs/companies/company_b.json")
+COMPANY_C_CONFIG_PATH = Path("configs/companies/company_c.json")
 
 
 def test_load_company_config_reads_sample_json() -> None:
@@ -51,9 +55,67 @@ def test_load_company_config_keeps_policy_thresholds() -> None:
         "manager_review",
         "executive_review",
     )
+    assert (
+        company_config.approval_route_policy.rfq_difference_policy.within_tolerance_route
+        == "proceed_tco"
+    )
+    assert (
+        company_config.approval_route_policy.rfq_difference_policy.exceeds_tolerance_route
+        == "request_human_review"
+    )
     assert company_config.tco_policy.unit_price_weight == 1.0
     assert company_config.tco_policy.shipping_fee_weight == 1.0
     assert company_config.tco_policy.other_costs_weight == 1.0
+
+
+def test_company_configs_keep_rfq_tolerance_routes() -> None:
+    # 준비: A/B/C 회사 config를 각각 불러옵니다.
+    company_a = load_company_config(COMPANY_A_CONFIG_PATH)
+    company_b = load_company_config(COMPANY_B_CONFIG_PATH)
+    company_c = load_company_config(COMPANY_C_CONFIG_PATH)
+
+    # 실행: RFQ 차이 정책만 비교합니다.
+    policy_a = company_a.approval_route_policy.rfq_difference_policy
+    policy_b = company_b.approval_route_policy.rfq_difference_policy
+    policy_c = company_c.approval_route_policy.rfq_difference_policy
+
+    # 검증: 회사별 route 차이는 config에만 들어 있습니다.
+    assert company_a.company_id == "COMPANY-A"
+    assert policy_a.within_tolerance_route == "proceed_tco"
+    assert policy_a.exceeds_tolerance_route == "request_human_review"
+    assert company_b.company_id == "COMPANY-B"
+    assert policy_b.exceeds_tolerance_route == "resend_rfq"
+    assert company_c.company_id == "COMPANY-C"
+    assert policy_c.exceeds_tolerance_route == "request_human_review"
+
+
+@pytest.mark.parametrize(
+    ("old_text", "new_text"),
+    (
+        ('"price_tolerance_ratio": 0.05', '"price_tolerance_ratio": -0.01'),
+        ('"price_tolerance_ratio": 0.05', '"price_tolerance_ratio": 1.01'),
+        ('"request_human_review"', '"manual_escape"'),
+    ),
+)
+def test_load_company_config_rejects_invalid_rfq_difference_policy(
+    tmp_path: Path,
+    old_text: str,
+    new_text: str,
+) -> None:
+    invalid_path = tmp_path / "invalid_rfq_difference_policy.json"
+    invalid_path.write_text(
+        COMPANY_A_CONFIG_PATH.read_text(encoding="utf-8").replace(
+            old_text,
+            new_text,
+            1,
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(CompanyConfigLoadError) as exc_info:
+        load_company_config(invalid_path)
+
+    assert exc_info.value.reason == "Company config JSON does not match the schema"
 
 
 def test_load_company_config_rejects_invalid_tco_policy(tmp_path: Path) -> None:
@@ -87,7 +149,13 @@ def test_load_company_config_rejects_invalid_tco_policy(tmp_path: Path) -> None:
               "standard_review",
               "manager_review",
               "executive_review"
-            ]
+            ],
+            "rfq_difference_policy": {
+              "price_tolerance_ratio": 0.1,
+              "delivery_tolerance_days": 2,
+              "within_tolerance_route": "proceed_tco",
+              "exceeds_tolerance_route": "request_human_review"
+            }
           },
           "tco_policy": {
             "unit_price_weight": 0,
@@ -104,6 +172,12 @@ def test_load_company_config_rejects_invalid_tco_policy(tmp_path: Path) -> None:
         load_company_config(invalid_path)
 
     assert exc_info.value.reason == "Company config JSON does not match the schema"
+    cause = exc_info.value.__cause__
+    assert isinstance(cause, ValidationError)
+    assert any(
+        error["loc"] == ("tco_policy", "unit_price_weight")
+        for error in cause.errors()
+    )
 
 
 def test_load_company_config_reports_schema_mismatch(tmp_path: Path) -> None:

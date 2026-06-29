@@ -1,8 +1,8 @@
 {
-  "company_id": "COMPANY-DEMO",
-  "company_name": "Demo Manufacturing Co.",
+  "company_id": "COMPANY-C",
+  "company_name": "Company C Manufacturing",
   "base_currency": "KRW",
-  "validation_policy_name": "demo_procurement_validation",
+  "validation_policy_name": "company_c_procurement_validation",
   "amount_policy": {
     "high_value_purchase_threshold": 1000000,
     "unit_price_difference_warning_ratio": 0.15,
@@ -27,7 +27,7 @@
     ],
     "rfq_difference_policy": {
       "price_tolerance_ratio": 0.05,
-      "delivery_tolerance_days": 7,
+      "delivery_tolerance_days": 3,
       "within_tolerance_route": "proceed_tco",
       "exceeds_tolerance_route": "request_human_review"
     }

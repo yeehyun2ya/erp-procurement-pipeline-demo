@@ -132,6 +132,7 @@ def test_build_human_review_request_result_keeps_warning_evidence() -> None:
     assert review_result.risk_level == "warning"
     assert review_result.issue_codes == ("UNIT_PRICE_ROBUST_OUTLIER",)
     assert review_result.status == "awaiting_human_review"
+    assert review_result.review_trigger == "validation_risk"
 
 
 def test_build_human_review_request_result_requires_evidence() -> None:

@@ -9,6 +9,7 @@ from procurement_pipeline.load_company_config import load_company_config
 from procurement_pipeline.load_quote import load_quote_comparison
 from procurement_pipeline.nodes.validation import validate_quote_amounts
 from procurement_pipeline.schemas.company_config import RfqDifferenceRouteAction
+from procurement_pipeline.schemas.external_delegation import ExternalDelegationResult
 from procurement_pipeline.schemas.rfq_difference_result import RfqDifferenceStatus
 from procurement_pipeline.schemas.validation_routing_result import (
     HumanReviewTrigger,
@@ -56,6 +57,7 @@ class CompanyDemoSummary(BaseModel):
     path_trace: tuple[str, ...]
     issue_codes: tuple[str, ...]
     human_review_trigger: HumanReviewTrigger | None
+    external_delegation_results: tuple[ExternalDelegationResult, ...] = ()
 
 
 COMPANY_DEMO_CASES = (
@@ -107,6 +109,7 @@ def run_company_demo(quote_path: Path, config_path: Path) -> CompanyDemoSummary:
         path_trace=result["path_trace"],
         issue_codes=issue_codes,
         human_review_trigger=human_review_trigger,
+        external_delegation_results=result.get("external_delegation_results", ()),
     )
 
 

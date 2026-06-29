@@ -1,6 +1,7 @@
 from typing_extensions import NotRequired, TypedDict
 
 from procurement_pipeline.schemas.company_config import CompanyConfig
+from procurement_pipeline.schemas.external_delegation import ExternalDelegationResult
 from procurement_pipeline.schemas.quote_input import QuoteComparisonInput
 from procurement_pipeline.schemas.rfq_difference_result import (
     RfqDifferenceResult,
@@ -28,6 +29,7 @@ class ProcurementState(TypedDict):
     rfq_resend_result: NotRequired[RfqResendResult]
     ocr_reparse_result: NotRequired[OcrReparseResult]
     human_review_result: NotRequired[HumanReviewRequestResult]
+    external_delegation_results: NotRequired[tuple[ExternalDelegationResult, ...]]
     path_trace: NotRequired[PathTrace]
 
 
@@ -38,4 +40,5 @@ class ProcurementStateUpdate(TypedDict, total=False):
     rfq_resend_result: RfqResendResult
     ocr_reparse_result: OcrReparseResult
     human_review_result: HumanReviewRequestResult
+    external_delegation_results: tuple[ExternalDelegationResult, ...]
     path_trace: PathTrace

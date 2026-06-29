@@ -65,6 +65,7 @@ def build_human_review_request_result(
             company_id=validation_result.company_id,
             risk_level=validation_result.risk_level,
             status="awaiting_human_review",
+            review_trigger="validation_risk",
             review_reason=(
                 f"{validation_result.risk_level} risk requires HITL mock review."
             ),

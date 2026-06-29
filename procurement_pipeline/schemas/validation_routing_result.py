@@ -11,6 +11,7 @@ ValidationRouteAction = Literal[
     "reparse_ocr",
 ]
 HumanReviewStatus = Literal["awaiting_human_review"]
+HumanReviewTrigger = Literal["validation_risk", "rfq_difference"]
 OcrReparseStatus = Literal["ocr_reparse_requested"]
 
 
@@ -44,5 +45,6 @@ class HumanReviewRequestResult(BaseModel):
     company_id: str
     risk_level: RiskLevel
     status: HumanReviewStatus
+    review_trigger: HumanReviewTrigger
     review_reason: str
     issue_codes: tuple[str, ...]

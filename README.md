@@ -2,7 +2,7 @@
 
 LangGraph 기반 ERP 조달 검증 파이프라인 데모입니다.
 
-이 프로젝트는 견적 JSON을 검증하고, 신뢰할 수 있는 값만 TCO 계산으로 넘기는 흐름을 단계적으로 구현합니다. 최종 목표는 회사별 정책 차이도 config와 conditional edge로 분리하는 것이지만, 현재 이슈 9에서는 모든 회사가 공통으로 거치는 입력 신뢰도 검증 분기만 다룹니다.
+이 프로젝트는 견적 JSON을 검증하고, 신뢰할 수 있는 값만 TCO 계산으로 넘기는 흐름을 단계적으로 구현합니다. 현재는 공통 입력 신뢰도 검증 뒤에 RFQ 원안 대비 공급업체 응답을 비교하고, 회사별 config에 따라 다음 경로를 다르게 고르는 단계까지 포함합니다.
 
 ## What This Demo Proves
 
@@ -11,15 +11,21 @@ LangGraph 기반 ERP 조달 검증 파이프라인 데모입니다.
 > 견적서 파싱 결과가 TCO 계산에 들어가기 전에, 공통 검증 게이트가 먼저 값의 신뢰도를 판단한다.
 > 회사별 허용 한도 차이는 그 다음 단계에서 별도 config 기반 분기로 처리한다.
 
-즉, `robust z-score`로 단가가 너무 튀는지 확인하고, 위험도에 따라 다음 경로를 나눕니다.
+즉, `robust z-score`로 단가가 너무 튀는지 먼저 확인하고, 정상 입력만 RFQ 원안 대비 가격/납기 차이 검증으로 넘깁니다.
 
 ```text
-normal   -> TCO 계산
+normal   -> RFQ 차이 비교 -> 회사별 config route
 warning  -> HITL mock 요청
 critical -> OCR 재파싱 mock 요청
 ```
 
-여기서 `warning`은 시장 상황이나 사회적 맥락 때문에 사람이 봐야 할 수 있는 값이고, `critical`은 OCR/parsing 결과 자체를 다시 확인해야 할 정도로 위험한 값으로 둡니다.
+RFQ 차이 비교 뒤에는 같은 견적 조건도 회사별 tolerance와 route 설정에 따라 달라집니다.
+
+```text
+A사: 허용 범위 안 -> TCO 계산
+B사: 허용 범위 초과 -> RFQ 재전송 mock
+C사: 허용 범위 초과 -> HITL mock 요청
+```
 
 ## Final Target Pipeline
 
@@ -39,9 +45,9 @@ critical -> OCR 재파싱 mock 요청
 
 ## Current Status
 
-현재 구현은 이슈 9, 공통 검증 라우팅까지 포함합니다.
+현재 구현은 이슈 10, RFQ 원안 대비 공급업체 응답 차이 기반 회사별 라우팅까지 포함합니다.
 
-입력 JSON schema, 회사 config schema, 이상치 검증, 과거 단가 baseline 검증, risk scoring, TCO 계산, 그리고 `risk_level` 기반 공통 graph 분기가 추가되었습니다.
+입력 JSON schema, 회사 config schema, 이상치 검증, 과거 단가 baseline 검증, risk scoring, TCO 계산, `risk_level` 기반 공통 graph 분기, RFQ 차이 비교, 회사별 tolerance route, RFQ 재전송 mock이 추가되었습니다.
 
 현재 구현된 주요 처리 재료:
 
@@ -55,6 +61,9 @@ OCR 재파싱 mock 결과
 HITL 요청 mock 결과
 TCO 계산 결과
 LangGraph conditional edge
+RFQ 원안 대비 응답 차이 결과
+RFQ 재전송 mock 결과
+회사별 A/B/C config sample
 ```
 
 ## Design Principles
@@ -83,6 +92,8 @@ LangGraph conditional edge
 │   ├── nodes/
 │   │   ├── validation.py
 │   │   ├── validation_routing.py
+│   │   ├── rfq_difference.py
+│   │   ├── rfq_resend.py
 │   │   ├── baseline_validation.py
 │   │   ├── risk_scoring.py
 │   │   └── tco_calculation.py
@@ -91,12 +102,14 @@ LangGraph conditional edge
 │       ├── company_config.py
 │       ├── validation_result.py
 │       ├── validation_routing_result.py
+│       ├── rfq_difference_result.py
 │       └── tco_result.py
 └── tests/
     ├── test_company_config.py
     ├── test_quote_input.py
     ├── test_validation_node.py
     ├── test_validation_routing.py
+    ├── test_rfq_difference.py
     ├── test_graph.py
     ├── test_run_graph.py
     ├── test_risk_scoring.py
@@ -121,17 +134,18 @@ PowerShell에서 `Activate.ps1` 실행이 막힐 수 있으므로, 이 프로젝
 
 ## Run
 
-샘플 견적과 회사 config를 읽고 공통 검증 graph를 실행합니다.
+A/B/C 샘플 견적과 회사 config를 읽고 RFQ 차이 기반 graph를 실행합니다.
 
 ```powershell
 .\.venv\Scripts\python.exe -m procurement_pipeline.run_graph
 ```
 
-정상 출력에는 `routing_result`와 `path_trace`가 포함됩니다.
+정상 출력에는 각 회사의 `rfq_difference_result`와 `path_trace`가 포함됩니다.
 
 ```text
-'routing_result': ValidationRoutingResult(...)
-'path_trace': ('route_validation', 'tco_calculation')
+COMPANY-A ... 'path_trace': ('route_validation', 'rfq_difference', 'tco_calculation')
+COMPANY-B ... 'path_trace': ('route_validation', 'rfq_difference', 'rfq_resend')
+COMPANY-C ... 'path_trace': ('route_validation', 'rfq_difference', 'human_review_request')
 ```
 
 ## Test
@@ -143,7 +157,7 @@ PowerShell에서 `Activate.ps1` 실행이 막힐 수 있으므로, 이 프로젝
 현재 브랜치 기준 정상 결과:
 
 ```text
-45 passed
+58 passed
 ```
 
 ## Roadmap
@@ -165,10 +179,6 @@ PowerShell에서 `Activate.ps1` 실행이 막힐 수 있으므로, 이 프로젝
 
 ## Not Built Yet
 
-- RFQ 원안 대비 공급업체 응답 비교
-- 회사별 `price_tolerance` / 납기 tolerance 기반 conditional edge
-- RFQ 재전송 mock 노드
-- 동일 입력 A사/B사/C사 분기 시연
 - 외부 위임 mock
 - FastAPI + HTML 목업 연결
 - TCO 산식 고도화
@@ -176,18 +186,15 @@ PowerShell에서 `Activate.ps1` 실행이 막힐 수 있으므로, 이 프로젝
 
 ## Next Issue Candidate
 
-### 이슈 10: RFQ 원안 대비 견적 차이 기반 회사별 라우팅
+### 이슈 11: 외부 위임 mock
 
-목표는 RFQ를 보낼 때 기대했던 가격/납기와 공급업체가 실제로 보낸 가격/납기를 비교하고, 회사별 허용 한도에 따라 다음 경로를 다르게 고르는 것입니다.
+목표는 검증 결과나 회사 정책에 따라 외부 시스템에 위임해야 하는 흐름을 mock으로 표현하는 것입니다.
 
 포함 범위:
 
-- RFQ 원안의 예상 가격/납기와 공급업체 응답 가격/납기를 비교합니다.
-- 회사 config에 가격/납기 tolerance와 초과 시 route를 둡니다.
-- A사는 허용 범위 안이면 TCO로 진행합니다.
-- B사는 허용 범위 초과 시 RFQ 재전송 mock으로 보냅니다.
-- C사는 허용 범위 초과 시 HITL mock으로 보냅니다.
-- 노드 내부에 `if company_id == ...` 같은 회사별 분기를 넣지 않습니다.
+- 실제 외부 연동 없이 위임 요청/응답 모양만 고정합니다.
+- graph에서 외부 위임 mock 경로를 확인할 수 있게 합니다.
+- LLM/ERP 호출은 하지 않습니다.
 
 제외 범위:
 

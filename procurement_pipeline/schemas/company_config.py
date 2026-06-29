@@ -1,4 +1,4 @@
-from typing import Self
+from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from pydantic_core import PydanticCustomError
@@ -43,10 +43,27 @@ class SupplierPolicy(BaseModel):
     requires_new_supplier_review: bool
 
 
+RfqDifferenceRouteAction = Literal[
+    "proceed_tco",
+    "resend_rfq",
+    "request_human_review",
+]
+
+
+class RfqDifferencePolicy(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    price_tolerance_ratio: float = Field(ge=0, le=1)
+    delivery_tolerance_days: int = Field(ge=0)
+    within_tolerance_route: RfqDifferenceRouteAction
+    exceeds_tolerance_route: RfqDifferenceRouteAction
+
+
 class ApprovalRoutePolicy(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     route_hints: tuple[str, ...] = Field(min_length=1)
+    rfq_difference_policy: RfqDifferencePolicy
 
 
 class TcoPolicy(BaseModel):

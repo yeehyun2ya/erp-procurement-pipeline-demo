@@ -4,6 +4,9 @@ from procurement_pipeline.load_quote import load_quote_comparison
 
 
 SAMPLE_INPUT_PATH = Path("data/sample_inputs/quote_comparison.json")
+COMPANY_A_INPUT_PATH = Path("data/sample_inputs/quote_comparison_company_a.json")
+COMPANY_B_INPUT_PATH = Path("data/sample_inputs/quote_comparison_company_b.json")
+COMPANY_C_INPUT_PATH = Path("data/sample_inputs/quote_comparison_company_c.json")
 
 
 def test_load_quote_comparison_reads_sample_json() -> None:
@@ -18,6 +21,8 @@ def test_load_quote_comparison_reads_sample_json() -> None:
     assert quote_input.company_id == "COMPANY-DEMO"
     assert quote_input.base_currency == "KRW"
     assert quote_input.quantity == 25
+    assert quote_input.rfq_terms.expected_unit_price == 900
+    assert quote_input.rfq_terms.expected_delivery_date.isoformat() == "2026-07-15"
 
 
 def test_load_quote_comparison_keeps_multiple_supplier_quotes() -> None:
@@ -33,3 +38,21 @@ def test_load_quote_comparison_keeps_multiple_supplier_quotes() -> None:
     assert quote_input.quotes[0].supplier_id == "SUP-ALPHA"
     assert quote_input.quotes[0].unit_price == 850
     assert quote_input.quotes[1].memo == "Requires minimum order confirmation before shipment."
+
+
+def test_company_samples_keep_same_non_company_quote_terms() -> None:
+    # 준비: 같은 경제 조건을 회사별 sample로 나눠 둡니다.
+    quote_a = load_quote_comparison(COMPANY_A_INPUT_PATH)
+    quote_b = load_quote_comparison(COMPANY_B_INPUT_PATH)
+    quote_c = load_quote_comparison(COMPANY_C_INPUT_PATH)
+
+    # 실행: company_id를 제외한 비교 대상 값을 모읍니다.
+    comparable_a = quote_a.model_dump(exclude={"company_id"})
+    comparable_b = quote_b.model_dump(exclude={"company_id"})
+    comparable_c = quote_c.model_dump(exclude={"company_id"})
+
+    # 검증: 같은 견적 조건이 회사 config 차이만으로 다른 경로를 타야 합니다.
+    assert quote_a.company_id == "COMPANY-A"
+    assert quote_b.company_id == "COMPANY-B"
+    assert quote_c.company_id == "COMPANY-C"
+    assert comparable_a == comparable_b == comparable_c

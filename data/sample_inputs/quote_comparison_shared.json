@@ -1,0 +1,44 @@
+{
+  "request_id": "PR-2026-0001",
+  "company_id": "COMPANY-SHARED",
+  "base_currency": "KRW",
+  "item": {
+    "name": "Hex bolt M12",
+    "category": "Industrial fasteners",
+    "description": "M12 hex bolts for equipment assembly and maintenance"
+  },
+  "quantity": 25,
+  "rfq_terms": {
+    "expected_unit_price": 900,
+    "expected_delivery_date": "2026-07-15"
+  },
+  "quotes": [
+    {
+      "supplier_id": "SUP-ALPHA",
+      "supplier_name": "Alpha Trading",
+      "unit_price": 850,
+      "delivery_date": "2026-07-15",
+      "shipping_fee": 30000,
+      "other_costs": 10000,
+      "memo": "Includes standard zinc plating and bulk packaging."
+    },
+    {
+      "supplier_id": "SUP-BRAVO",
+      "supplier_name": "Bravo Systems",
+      "unit_price": 790,
+      "delivery_date": "2026-07-22",
+      "shipping_fee": 45000,
+      "other_costs": 15000,
+      "memo": "Requires minimum order confirmation before shipment."
+    },
+    {
+      "supplier_id": "SUP-CHARLIE",
+      "supplier_name": "Charlie Supply",
+      "unit_price": 920,
+      "delivery_date": "2026-07-10",
+      "shipping_fee": 0,
+      "other_costs": 20000,
+      "memo": "Fastest delivery option; material certificate included."
+    }
+  ]
+}

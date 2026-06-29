@@ -1,10 +1,14 @@
 from pathlib import Path
 from typing import assert_never
 
-from procurement_pipeline.graph import graph
+from procurement_pipeline.graph import build_graph, graph
 from procurement_pipeline.load_company_config import load_company_config
 from procurement_pipeline.load_quote import load_quote_comparison
 from procurement_pipeline.schemas.company_config import CompanyConfig
+from procurement_pipeline.schemas.external_delegation import (
+    ExternalDelegationRequest,
+    ExternalDelegationResult,
+)
 from procurement_pipeline.schemas.validation_result import (
     IssueSeverity,
     RiskLevel,
@@ -20,6 +24,22 @@ COMPANY_C_CONFIG_PATH = Path("configs/companies/company_c.json")
 COMPANY_A_INPUT_PATH = Path("data/sample_inputs/quote_comparison_company_a.json")
 COMPANY_B_INPUT_PATH = Path("data/sample_inputs/quote_comparison_company_b.json")
 COMPANY_C_INPUT_PATH = Path("data/sample_inputs/quote_comparison_company_c.json")
+
+
+class CustomExternalDelegationAdapter:
+    def delegate(
+        self,
+        request: ExternalDelegationRequest,
+    ) -> ExternalDelegationResult:
+        return ExternalDelegationResult(
+            request_id=request.request_id,
+            company_id=request.company_id,
+            delegation_type=request.delegation_type,
+            target_system="erp_approval",
+            status="mock_accepted",
+            mock_response_id=f"CUSTOM-{request.request_id}",
+            issue_codes=request.issue_codes,
+        )
 
 
 def make_issue(severity: IssueSeverity) -> ValidationIssue:
@@ -90,6 +110,7 @@ def test_graph_routes_company_a_normal_validation_to_tco_after_rfq_difference() 
     )
     assert result["rfq_difference_result"].selected_route == "proceed_tco"
     assert result["tco_result"].company_id == "COMPANY-A"
+    assert "external_delegation_results" not in result
     assert "rfq_resend_result" not in result
     assert "human_review_result" not in result
     assert "ocr_reparse_result" not in result
@@ -115,8 +136,33 @@ def test_graph_routes_company_b_normal_validation_to_rfq_resend() -> None:
     )
     assert result["rfq_difference_result"].selected_route == "resend_rfq"
     assert result["rfq_resend_result"].status == "rfq_resend_requested"
+    assert tuple(
+        delegation.delegation_type
+        for delegation in result["external_delegation_results"]
+    ) == ("erp_approval_request",)
+    assert result["external_delegation_results"][0].target_system == "erp_approval"
+    assert result["external_delegation_results"][0].status == "mock_accepted"
     assert "tco_result" not in result
     assert "human_review_result" not in result
+
+
+def test_graph_can_use_injected_external_delegation_adapter() -> None:
+    # 준비: B사 RFQ 재전송 경로와 custom 외부 위임 adapter를 준비합니다.
+    company_config = load_company_config(COMPANY_B_CONFIG_PATH)
+    injected_graph = build_graph(CustomExternalDelegationAdapter())
+    initial_state = make_initial_state(
+        COMPANY_B_INPUT_PATH,
+        company_config,
+        make_validation_result("normal", company_config.company_id),
+    )
+
+    # 실행: custom adapter로 만든 graph를 호출합니다.
+    result = injected_graph.invoke(initial_state)
+
+    # 검증: graph는 concrete mock이 아니라 주입된 adapter 응답을 state에 남깁니다.
+    assert result["external_delegation_results"][0].mock_response_id == (
+        "CUSTOM-PR-2026-0001"
+    )
 
 
 def test_graph_routes_company_c_normal_validation_to_human_review() -> None:
@@ -141,6 +187,14 @@ def test_graph_routes_company_c_normal_validation_to_human_review() -> None:
     assert result["human_review_result"].status == "awaiting_human_review"
     assert result["human_review_result"].risk_level == "normal"
     assert result["human_review_result"].review_trigger == "rfq_difference"
+    assert tuple(
+        delegation.delegation_type
+        for delegation in result["external_delegation_results"]
+    ) == ("manager_notification",)
+    assert (
+        result["external_delegation_results"][0].target_system
+        == "procurement_notification"
+    )
     assert "tco_result" not in result
     assert "rfq_resend_result" not in result
 
@@ -163,6 +217,10 @@ def test_graph_routes_warning_validation_to_human_review_request() -> None:
     assert result["human_review_result"].status == "awaiting_human_review"
     assert result["human_review_result"].review_trigger == "validation_risk"
     assert result["human_review_result"].issue_codes == ("UNIT_PRICE_ROBUST_OUTLIER",)
+    assert tuple(
+        delegation.delegation_type
+        for delegation in result["external_delegation_results"]
+    ) == ("manager_notification",)
     assert "rfq_difference_result" not in result
     assert "tco_result" not in result
     assert "ocr_reparse_result" not in result

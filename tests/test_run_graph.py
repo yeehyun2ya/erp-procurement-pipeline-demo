@@ -25,6 +25,10 @@ def test_run_company_demo_uses_one_quote_and_one_company_config() -> None:
     assert summary.executed_quote_company_id == "COMPANY-B"
     assert summary.company_id == "COMPANY-B"
     assert summary.final_outcome == "rfq_resend"
+    assert tuple(
+        delegation.delegation_type
+        for delegation in summary.external_delegation_results
+    ) == ("erp_approval_request",)
     assert summary.path_trace == (
         "route_validation",
         "rfq_difference",
@@ -50,6 +54,15 @@ def test_run_comparison_demo_reuses_same_quote_for_all_companies() -> None:
         "rfq_resend",
         "human_review_request",
     )
+    assert summaries[0].external_delegation_results == ()
+    assert tuple(
+        delegation.delegation_type
+        for delegation in summaries[1].external_delegation_results
+    ) == ("erp_approval_request",)
+    assert tuple(
+        delegation.delegation_type
+        for delegation in summaries[2].external_delegation_results
+    ) == ("manager_notification",)
 
 
 def test_run_company_demo_summarizes_validation_human_review_route(
@@ -89,6 +102,10 @@ def test_run_company_demo_summarizes_validation_human_review_route(
     assert summary.rfq_difference_status is None
     assert summary.issue_codes == ("UNIT_PRICE_ROBUST_OUTLIER",)
     assert summary.human_review_trigger == "validation_risk"
+    assert tuple(
+        delegation.delegation_type
+        for delegation in summary.external_delegation_results
+    ) == ("manager_notification",)
 
 
 def test_run_graph_prints_company_rfq_difference_paths(
@@ -120,4 +137,12 @@ def test_run_graph_prints_company_rfq_difference_paths(
         "tco_calculation",
     )
     assert output_summaries[1].rfq_difference_route == "resend_rfq"
+    assert (
+        output_summaries[1].external_delegation_results[0].target_system
+        == "erp_approval"
+    )
     assert output_summaries[2].human_review_trigger == "rfq_difference"
+    assert (
+        output_summaries[2].external_delegation_results[0].target_system
+        == "procurement_notification"
+    )

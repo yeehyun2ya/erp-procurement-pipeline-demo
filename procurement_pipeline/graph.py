@@ -1,8 +1,14 @@
-from typing import assert_never
+from typing import Final, assert_never
 
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
+from procurement_pipeline.adapters.external_delegation import (
+    ExternalDelegationAdapter,
+    MockExternalDelegationAdapter,
+    build_erp_approval_request,
+    build_manager_notification_request,
+)
 from procurement_pipeline.nodes.rfq_difference import (
     build_rfq_difference_result,
     build_rfq_human_review_request_result,
@@ -15,8 +21,14 @@ from procurement_pipeline.nodes.validation_routing import (
     build_validation_routing_result,
 )
 from procurement_pipeline.schemas.company_config import RfqDifferenceRouteAction
+from procurement_pipeline.schemas.external_delegation import ExternalDelegationResult
 from procurement_pipeline.schemas.validation_routing_result import ValidationRouteAction
 from procurement_pipeline.state import ProcurementState, ProcurementStateUpdate
+
+
+DEFAULT_EXTERNAL_DELEGATION_ADAPTER: Final[ExternalDelegationAdapter] = (
+    MockExternalDelegationAdapter()
+)
 
 
 def route_validation(state: ProcurementState) -> ProcurementStateUpdate:
@@ -49,27 +61,71 @@ def compare_rfq_difference(state: ProcurementState) -> ProcurementStateUpdate:
 
 
 def request_rfq_resend(state: ProcurementState) -> ProcurementStateUpdate:
+    return request_rfq_resend_with_adapter(
+        state,
+        DEFAULT_EXTERNAL_DELEGATION_ADAPTER,
+    )
+
+
+def request_rfq_resend_with_adapter(
+    state: ProcurementState,
+    external_delegation_adapter: ExternalDelegationAdapter,
+) -> ProcurementStateUpdate:
+    rfq_resend_result = build_rfq_resend_result(
+        state["rfq_difference_result"],
+    )
+    external_delegation_result = external_delegation_adapter.delegate(
+        build_erp_approval_request(rfq_resend_result),
+    )
     return {
-        "rfq_resend_result": build_rfq_resend_result(
-            state["rfq_difference_result"],
+        "rfq_resend_result": rfq_resend_result,
+        "external_delegation_results": _append_external_delegation(
+            state,
+            external_delegation_result,
         ),
         "path_trace": _append_path(state, "rfq_resend"),
     }
 
 
 def request_human_review(state: ProcurementState) -> ProcurementStateUpdate:
+    return request_human_review_with_adapter(
+        state,
+        DEFAULT_EXTERNAL_DELEGATION_ADAPTER,
+    )
+
+
+def request_human_review_with_adapter(
+    state: ProcurementState,
+    external_delegation_adapter: ExternalDelegationAdapter,
+) -> ProcurementStateUpdate:
     if "rfq_difference_result" in state:
+        human_review_result = build_rfq_human_review_request_result(
+            state["rfq_difference_result"],
+            state["validation_result"].risk_level,
+        )
+        external_delegation_result = external_delegation_adapter.delegate(
+            build_manager_notification_request(human_review_result),
+        )
         return {
-            "human_review_result": build_rfq_human_review_request_result(
-                state["rfq_difference_result"],
-                state["validation_result"].risk_level,
+            "human_review_result": human_review_result,
+            "external_delegation_results": _append_external_delegation(
+                state,
+                external_delegation_result,
             ),
             "path_trace": _append_path(state, "human_review_request"),
         }
 
+    human_review_result = build_human_review_request_result(
+        state["validation_result"],
+    )
+    external_delegation_result = external_delegation_adapter.delegate(
+        build_manager_notification_request(human_review_result),
+    )
     return {
-        "human_review_result": build_human_review_request_result(
-            state["validation_result"],
+        "human_review_result": human_review_result,
+        "external_delegation_results": _append_external_delegation(
+            state,
+            external_delegation_result,
         ),
         "path_trace": _append_path(state, "human_review_request"),
     }
@@ -92,13 +148,29 @@ def select_rfq_difference_route_target(state: ProcurementState) -> str:
     return _target_for_rfq_route(state["rfq_difference_result"].selected_route)
 
 
-def build_graph() -> CompiledStateGraph:
+def build_graph(
+    external_delegation_adapter: ExternalDelegationAdapter = (
+        DEFAULT_EXTERNAL_DELEGATION_ADAPTER
+    ),
+) -> CompiledStateGraph:
+    def rfq_resend_node(state: ProcurementState) -> ProcurementStateUpdate:
+        return request_rfq_resend_with_adapter(
+            state,
+            external_delegation_adapter,
+        )
+
+    def human_review_node(state: ProcurementState) -> ProcurementStateUpdate:
+        return request_human_review_with_adapter(
+            state,
+            external_delegation_adapter,
+        )
+
     builder = StateGraph(ProcurementState)
     builder.add_node("route_validation", route_validation)
     builder.add_node("rfq_difference", compare_rfq_difference)
     builder.add_node("tco_calculation", calculate_tco)
-    builder.add_node("rfq_resend", request_rfq_resend)
-    builder.add_node("human_review_request", request_human_review)
+    builder.add_node("rfq_resend", rfq_resend_node)
+    builder.add_node("human_review_request", human_review_node)
     builder.add_node("ocr_reparse", request_ocr_reparse)
 
     builder.add_edge(START, "route_validation")
@@ -161,6 +233,13 @@ def _target_for_rfq_route(route_action: RfqDifferenceRouteAction) -> str:
 
 def _append_path(state: ProcurementState, node_name: str) -> tuple[str, ...]:
     return (*state.get("path_trace", ()), node_name)
+
+
+def _append_external_delegation(
+    state: ProcurementState,
+    result: ExternalDelegationResult,
+) -> tuple[ExternalDelegationResult, ...]:
+    return (*state.get("external_delegation_results", ()), result)
 
 
 graph = build_graph()

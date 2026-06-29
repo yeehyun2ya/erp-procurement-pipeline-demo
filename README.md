@@ -2,7 +2,7 @@
 
 LangGraph 기반 ERP 조달 검증 파이프라인 데모입니다.
 
-이 프로젝트는 견적 JSON을 검증하고, 신뢰할 수 있는 값만 TCO 계산으로 넘기는 흐름을 단계적으로 구현합니다. 현재는 공통 입력 신뢰도 검증 뒤에 RFQ 원안 대비 공급업체 응답을 비교하고, 회사별 config에 따라 다음 경로를 다르게 고르는 단계까지 포함합니다.
+이 프로젝트는 견적 JSON을 검증하고, 신뢰할 수 있는 값만 TCO 계산으로 넘기는 흐름을 단계적으로 구현합니다. 현재는 공통 입력 신뢰도 검증 뒤에 RFQ 원안 대비 공급업체 응답을 비교하고, 회사별 config에 따라 다음 경로를 다르게 고른 뒤 외부 위임 mock 응답까지 남깁니다.
 
 ## What This Demo Proves
 
@@ -45,9 +45,9 @@ C사: 허용 범위 초과 -> HITL mock 요청
 
 ## Current Status
 
-현재 구현은 이슈 11, 동일 견적 JSON을 A/B/C 회사 config로 각각 실행해 서로 다른 경로를 비교하는 데모 출력까지 포함합니다.
+현재 구현은 이슈 12, 동일 견적 JSON을 A/B/C 회사 config로 각각 실행해 서로 다른 경로를 비교하고, 외부 시스템 위임이 필요한 경로에서는 adapter 기반 mock 응답을 출력하는 데모까지 포함합니다.
 
-입력 JSON schema, 회사 config schema, 이상치 검증, 과거 단가 baseline 검증, risk scoring, TCO 계산, `risk_level` 기반 공통 graph 분기, RFQ 차이 비교, 회사별 tolerance route, RFQ 재전송 mock, 동일 견적 JSON 기반 A/B/C 비교 출력이 추가되었습니다.
+입력 JSON schema, 회사 config schema, 이상치 검증, 과거 단가 baseline 검증, risk scoring, TCO 계산, `risk_level` 기반 공통 graph 분기, RFQ 차이 비교, 회사별 tolerance route, RFQ 재전송 mock, 동일 견적 JSON 기반 A/B/C 비교 출력, 외부 위임 adapter mock이 추가되었습니다.
 
 현재 구현된 주요 처리 재료:
 
@@ -63,6 +63,7 @@ TCO 계산 결과
 LangGraph conditional edge
 RFQ 원안 대비 응답 차이 결과
 RFQ 재전송 mock 결과
+외부 위임 adapter mock 결과
 회사별 A/B/C config sample
 동일 견적 JSON 기반 A/B/C 비교 출력
 ```
@@ -90,6 +91,8 @@ RFQ 재전송 mock 결과
 │   ├── graph.py
 │   ├── state.py
 │   ├── run_graph.py
+│   ├── adapters/
+│   │   └── external_delegation.py
 │   ├── nodes/
 │   │   ├── validation.py
 │   │   ├── validation_routing.py
@@ -104,12 +107,14 @@ RFQ 재전송 mock 결과
 │       ├── validation_result.py
 │       ├── validation_routing_result.py
 │       ├── rfq_difference_result.py
+│       ├── external_delegation.py
 │       └── tco_result.py
 └── tests/
     ├── test_company_config.py
     ├── test_quote_input.py
     ├── test_validation_node.py
     ├── test_validation_routing.py
+    ├── test_external_delegation.py
     ├── test_rfq_difference.py
     ├── test_graph.py
     ├── test_run_graph.py
@@ -141,12 +146,12 @@ PowerShell에서 `Activate.ps1` 실행이 막힐 수 있으므로, 이 프로젝
 .\.venv\Scripts\python.exe -m procurement_pipeline.run_graph
 ```
 
-정상 출력은 회사별 JSONL 요약 3줄입니다. 각 줄에는 공통 견적 경로, 실행 회사, 선택 route, 최종 경로가 포함됩니다.
+정상 출력은 회사별 JSONL 요약 3줄입니다. 각 줄에는 공통 견적 경로, 실행 회사, 선택 route, 최종 경로, 외부 위임 mock 결과가 포함됩니다.
 
 ```text
 {"company_id":"COMPANY-A", ... "final_outcome":"tco_calculation"}
-{"company_id":"COMPANY-B", ... "final_outcome":"rfq_resend"}
-{"company_id":"COMPANY-C", ... "final_outcome":"human_review_request"}
+{"company_id":"COMPANY-B", ... "final_outcome":"rfq_resend", "external_delegation_results":[...]}
+{"company_id":"COMPANY-C", ... "final_outcome":"human_review_request", "external_delegation_results":[...]}
 ```
 
 ## Test
@@ -158,7 +163,7 @@ PowerShell에서 `Activate.ps1` 실행이 막힐 수 있으므로, 이 프로젝
 현재 브랜치 기준 정상 결과:
 
 ```text
-61 passed
+64 passed
 ```
 
 ## Roadmap
@@ -181,27 +186,24 @@ PowerShell에서 `Activate.ps1` 실행이 막힐 수 있으므로, 이 프로젝
 
 ## Not Built Yet
 
-- 외부 위임 mock
 - FastAPI + HTML 목업 연결
 - TCO 산식 고도화
 - 단가 sanity check 노드
 
 ## Next Issue Candidate
 
-### 이슈 12: 외부 위임 mock
+### 이슈 13: FastAPI + HTML 목업 연결
 
-목표는 검증 결과나 회사 정책에 따라 외부 시스템에 위임해야 하는 흐름을 mock으로 표현하는 것입니다.
+목표는 현재 CLI에서 확인하는 graph 실행 결과를 FastAPI와 HTML 목업으로 연결해 발표용 화면에서 볼 수 있게 하는 것입니다.
 
 포함 범위:
 
-- 실제 외부 연동 없이 위임 요청/응답 모양만 고정합니다.
-- graph에서 외부 위임 mock 경로를 확인할 수 있게 합니다.
-- LLM/ERP 호출은 하지 않습니다.
+- 현재 graph/demo 실행 결과를 API 응답으로 노출합니다.
+- 동일 견적 A/B/C 비교 결과를 HTML 목업에서 확인합니다.
+- 외부 위임 mock 결과도 화면에 표시합니다.
 
 제외 범위:
 
 - 실제 ERP 연동
-- 실제 담당자 알림
-- FastAPI 또는 화면 연결
 - LLM 호출
 - 최종 공급사 자동 선정

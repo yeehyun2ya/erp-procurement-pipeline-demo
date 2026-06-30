@@ -23,7 +23,7 @@ def test_calculate_supplier_tco_returns_supplier_costs_with_default_weights() ->
     result = calculate_supplier_tco(quote_input, company_config)
 
     # 검증: 입력 식별자와 정책 이름을 유지하고, 견적 수만큼 결과를 만듭니다.
-    assert result.request_id == "PR-2026-0001"
+    assert result.request_id == "20260605-0001"
     assert result.company_id == "COMPANY-DEMO"
     assert result.used_policy_name == "demo_procurement_validation"
     assert len(result.supplier_results) == len(quote_input.quotes)
@@ -32,25 +32,25 @@ def test_calculate_supplier_tco_returns_supplier_costs_with_default_weights() ->
         supplier_result.supplier_id: supplier_result
         for supplier_result in result.supplier_results
     }
-    alpha_result = results_by_supplier["SUP-ALPHA"]
-    assert alpha_result.supplier_id == "SUP-ALPHA"
-    assert alpha_result.supplier_name == "Alpha Trading"
-    assert alpha_result.base_item_cost == 21_250.0
-    assert alpha_result.shipping_fee == 30_000.0
-    assert alpha_result.other_costs == 10_000.0
-    assert alpha_result.tco_amount == 61_250.0
+    gaon_result = results_by_supplier["SUP-GAON"]
+    assert gaon_result.supplier_id == "SUP-GAON"
+    assert gaon_result.supplier_name == "가온정밀"
+    assert gaon_result.base_item_cost == 130_000.0
+    assert gaon_result.shipping_fee == 70_000.0
+    assert gaon_result.other_costs == 25_000.0
+    assert gaon_result.tco_amount == 225_000.0
 
-    bravo_result = results_by_supplier["SUP-BRAVO"]
-    assert bravo_result.base_item_cost == 19_750.0
-    assert bravo_result.shipping_fee == 45_000.0
-    assert bravo_result.other_costs == 15_000.0
-    assert bravo_result.tco_amount == 79_750.0
+    kanglim_result = results_by_supplier["SUP-KANGLIM"]
+    assert kanglim_result.base_item_cost == 142_500.0
+    assert kanglim_result.shipping_fee == 0.0
+    assert kanglim_result.other_costs == 9_000.0
+    assert kanglim_result.tco_amount == 151_500.0
 
-    charlie_result = results_by_supplier["SUP-CHARLIE"]
-    assert charlie_result.base_item_cost == 23_000.0
-    assert charlie_result.shipping_fee == 0.0
-    assert charlie_result.other_costs == 20_000.0
-    assert charlie_result.tco_amount == 43_000.0
+    taesung_result = results_by_supplier["SUP-TAESUNG"]
+    assert taesung_result.base_item_cost == 137_500.0
+    assert taesung_result.shipping_fee == 20_000.0
+    assert taesung_result.other_costs == 52_000.0
+    assert taesung_result.tco_amount == 209_500.0
 
 
 def test_calculate_supplier_tco_applies_config_weights() -> None:
@@ -73,9 +73,9 @@ def test_calculate_supplier_tco_applies_config_weights() -> None:
     result = calculate_supplier_tco(quote_input, weighted_config)
 
     # 검증: 단가*수량, 배송비, 기타 비용에 각각 다른 계수가 적용됩니다.
-    alpha_result = result.supplier_results[0]
-    assert alpha_result.base_item_cost == 21_250.0
-    assert alpha_result.tco_amount == pytest.approx(60_500.0)
+    gaon_result = result.supplier_results[0]
+    assert gaon_result.base_item_cost == 130_000.0
+    assert gaon_result.tco_amount == pytest.approx(241_000.0)
 
 
 def test_calculate_supplier_tco_rejects_company_id_mismatch() -> None:

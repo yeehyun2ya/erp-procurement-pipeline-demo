@@ -1,44 +1,44 @@
 {
-  "request_id": "PR-2026-0001",
+  "request_id": "20260605-0001",
   "company_id": "COMPANY-B",
   "base_currency": "KRW",
   "item": {
-    "name": "Hex bolt M12",
-    "category": "Industrial fasteners",
-    "description": "M12 hex bolts for equipment assembly and maintenance"
+    "name": "BOLT M12-40",
+    "category": "볼트류",
+    "description": "M12×40 육각볼트 SUS304"
   },
-  "quantity": 25,
+  "quantity": 500,
   "rfq_terms": {
-    "expected_unit_price": 900,
-    "expected_delivery_date": "2026-07-15"
+    "expected_unit_price": 273,
+    "expected_delivery_date": "2026-06-15"
   },
   "quotes": [
     {
-      "supplier_id": "SUP-ALPHA",
-      "supplier_name": "Alpha Trading",
-      "unit_price": 850,
-      "delivery_date": "2026-07-15",
-      "shipping_fee": 30000,
-      "other_costs": 10000,
-      "memo": "Includes standard zinc plating and bulk packaging."
+      "supplier_id": "SUP-GAON",
+      "supplier_name": "가온정밀",
+      "unit_price": 260,
+      "delivery_date": "2026-06-18",
+      "shipping_fee": 70000,
+      "other_costs": 25000,
+      "memo": "납기 리스크 주의, 기존 거래 이력 확인 필요."
     },
     {
-      "supplier_id": "SUP-BRAVO",
-      "supplier_name": "Bravo Systems",
-      "unit_price": 790,
-      "delivery_date": "2026-07-22",
-      "shipping_fee": 45000,
-      "other_costs": 15000,
-      "memo": "Requires minimum order confirmation before shipment."
-    },
-    {
-      "supplier_id": "SUP-CHARLIE",
-      "supplier_name": "Charlie Supply",
-      "unit_price": 920,
-      "delivery_date": "2026-07-10",
+      "supplier_id": "SUP-KANGLIM",
+      "supplier_name": "강림스패너",
+      "unit_price": 285,
+      "delivery_date": "2026-06-19",
       "shipping_fee": 0,
-      "other_costs": 20000,
-      "memo": "Fastest delivery option; material certificate included."
+      "other_costs": 9000,
+      "memo": "우선 추천 공급업체, 단가와 납기 조건 확인 필요."
+    },
+    {
+      "supplier_id": "SUP-TAESUNG",
+      "supplier_name": "태성볼트",
+      "unit_price": 275,
+      "delivery_date": "2026-06-16",
+      "shipping_fee": 20000,
+      "other_costs": 52000,
+      "memo": "품질 리스크 비용 반영, 소재 인증서 확인 필요."
     }
   ]
 }

@@ -58,7 +58,7 @@ def test_validate_quote_amounts_warns_when_unit_price_is_robust_outlier() -> Non
     assert issue.related_supplier_id == "SUP-DELTA"
     assert issue.related_field == "unit_price"
     assert issue.observed_value == 5_000
-    assert issue.reference_value == 885.0
+    assert issue.reference_value == 280.0
     assert issue.score >= company_config.amount_policy.robust_z_score_threshold
 
 
@@ -82,16 +82,16 @@ def test_validate_quote_amounts_uses_ratio_fallback_when_mad_is_zero() -> None:
     company_config = load_company_config(Path("configs/companies/company_demo.json"))
     same_price_quotes = (
         quote_input.quotes[0].model_copy(
-            update={"supplier_id": "SUP-SAME-1", "unit_price": 850}
+            update={"supplier_id": "SUP-SAME-1", "unit_price": 273}
         ),
         quote_input.quotes[1].model_copy(
-            update={"supplier_id": "SUP-SAME-2", "unit_price": 850}
+            update={"supplier_id": "SUP-SAME-2", "unit_price": 273}
         ),
         quote_input.quotes[2].model_copy(
-            update={"supplier_id": "SUP-SAME-3", "unit_price": 850}
+            update={"supplier_id": "SUP-SAME-3", "unit_price": 273}
         ),
         quote_input.quotes[2].model_copy(
-            update={"supplier_id": "SUP-HIGH", "unit_price": 1_100}
+            update={"supplier_id": "SUP-HIGH", "unit_price": 330}
         ),
     )
     quote_with_zero_mad = quote_input.model_copy(update={"quotes": same_price_quotes})
@@ -103,7 +103,7 @@ def test_validate_quote_amounts_uses_ratio_fallback_when_mad_is_zero() -> None:
     assert result.risk_level == "warning"
     assert len(result.issues) == 1
     assert result.issues[0].related_supplier_id == "SUP-HIGH"
-    assert result.issues[0].score == pytest.approx(250 / 850)
+    assert result.issues[0].score == pytest.approx(57 / 273)
 
 
 def test_validate_quote_amounts_rejects_company_id_mismatch() -> None:

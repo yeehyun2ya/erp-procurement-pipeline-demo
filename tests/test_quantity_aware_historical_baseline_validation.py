@@ -34,13 +34,13 @@ def test_historical_purchase_record_rejects_non_positive_quantity(
           "company_id": "COMPANY-DEMO",
           "base_currency": "KRW",
           "item": {
-            "name": "Hex bolt M12",
-            "category": "Industrial fasteners"
+            "name": "BOLT M12-40",
+            "category": "볼트류"
           },
           "purchase_records": [
             {
               "purchase_id": "PO-2025-0001",
-              "supplier_id": "SUP-ALPHA",
+              "supplier_id": "SUP-GAON",
               "unit_price": 820,
               "quantity": 0,
               "purchased_at": "2025-09-10"
@@ -61,7 +61,7 @@ def test_historical_purchase_record_rejects_non_positive_quantity(
 
 
 def test_baseline_validation_uses_only_quantity_similar_history() -> None:
-    # 준비: 현재 수량 25와 비슷한 기록 3개, 멀리 떨어진 극단값 2개를 함께 둡니다.
+    # 준비: 현재 수량 500과 비슷한 기록 3개, 멀리 떨어진 극단값 2개를 함께 둡니다.
     quote_input = load_quote_comparison(QUOTE_SAMPLE_PATH)
     historical_prices = load_historical_unit_prices(HISTORICAL_PRICE_SAMPLE_PATH)
     company_config = load_company_config(COMPANY_CONFIG_SAMPLE_PATH)
@@ -69,19 +69,19 @@ def test_baseline_validation_uses_only_quantity_similar_history() -> None:
         update={
             "purchase_records": (
                 historical_prices.purchase_records[0].model_copy(
-                    update={"unit_price": 100, "quantity": 5}
+                    update={"unit_price": 100, "quantity": 100}
                 ),
                 historical_prices.purchase_records[1].model_copy(
-                    update={"unit_price": 820, "quantity": 20}
+                    update={"unit_price": 268, "quantity": 400}
                 ),
                 historical_prices.purchase_records[2].model_copy(
-                    update={"unit_price": 850, "quantity": 25}
+                    update={"unit_price": 273, "quantity": 500}
                 ),
                 historical_prices.purchase_records[3].model_copy(
-                    update={"unit_price": 880, "quantity": 30}
+                    update={"unit_price": 278, "quantity": 600}
                 ),
                 historical_prices.purchase_records[4].model_copy(
-                    update={"unit_price": 5_000, "quantity": 1_000}
+                    update={"unit_price": 5_000, "quantity": 2_000}
                 ),
             )
         }
@@ -91,7 +91,7 @@ def test_baseline_validation_uses_only_quantity_similar_history() -> None:
             "quotes": (
                 quote_input.quotes[0],
                 quote_input.quotes[1],
-                quote_input.quotes[2].model_copy(update={"unit_price": 1_500}),
+                quote_input.quotes[2].model_copy(update={"unit_price": 500}),
             )
         }
     )
@@ -103,11 +103,11 @@ def test_baseline_validation_uses_only_quantity_similar_history() -> None:
         company_config,
     )
 
-    # 검증: quantity 20/25/30만 median에 들어가므로 극단값 100/5000은 영향을 주지 않습니다.
+    # 검증: quantity 400/500/600만 median에 들어가므로 극단값 100/5000은 영향을 주지 않습니다.
     assert result.risk_level == "warning"
     assert len(result.issues) == 1
-    assert result.issues[0].reference_value == 850.0
-    assert result.issues[0].related_supplier_id == "SUP-CHARLIE"
+    assert result.issues[0].reference_value == 273.0
+    assert result.issues[0].related_supplier_id == "SUP-TAESUNG"
 
 
 def test_baseline_validation_skips_issue_when_quantity_filtered_history_is_too_small() -> None:
@@ -119,16 +119,16 @@ def test_baseline_validation_skips_issue_when_quantity_filtered_history_is_too_s
         update={
             "purchase_records": (
                 historical_prices.purchase_records[0].model_copy(
-                    update={"unit_price": 100, "quantity": 5}
+                    update={"unit_price": 100, "quantity": 100}
                 ),
                 historical_prices.purchase_records[1].model_copy(
-                    update={"unit_price": 820, "quantity": 20}
+                    update={"unit_price": 268, "quantity": 400}
                 ),
                 historical_prices.purchase_records[2].model_copy(
-                    update={"unit_price": 850, "quantity": 25}
+                    update={"unit_price": 273, "quantity": 500}
                 ),
                 historical_prices.purchase_records[3].model_copy(
-                    update={"unit_price": 5_000, "quantity": 1_000}
+                    update={"unit_price": 5_000, "quantity": 2_000}
                 ),
             )
         }
@@ -136,7 +136,7 @@ def test_baseline_validation_skips_issue_when_quantity_filtered_history_is_too_s
     quote_with_high_price = quote_input.model_copy(
         update={
             "quotes": (
-                quote_input.quotes[0].model_copy(update={"unit_price": 1_500}),
+                quote_input.quotes[0].model_copy(update={"unit_price": 500}),
             )
         }
     )
@@ -162,19 +162,19 @@ def test_baseline_validation_uses_ratio_fallback_after_quantity_filtering() -> N
         update={
             "purchase_records": (
                 historical_prices.purchase_records[0].model_copy(
-                    update={"unit_price": 100, "quantity": 5}
+                    update={"unit_price": 100, "quantity": 100}
                 ),
                 historical_prices.purchase_records[1].model_copy(
-                    update={"unit_price": 850, "quantity": 20}
+                    update={"unit_price": 273, "quantity": 400}
                 ),
                 historical_prices.purchase_records[2].model_copy(
-                    update={"unit_price": 850, "quantity": 25}
+                    update={"unit_price": 273, "quantity": 500}
                 ),
                 historical_prices.purchase_records[3].model_copy(
-                    update={"unit_price": 850, "quantity": 30}
+                    update={"unit_price": 273, "quantity": 600}
                 ),
                 historical_prices.purchase_records[4].model_copy(
-                    update={"unit_price": 5_000, "quantity": 1_000}
+                    update={"unit_price": 5_000, "quantity": 2_000}
                 ),
             )
         }
@@ -184,7 +184,7 @@ def test_baseline_validation_uses_ratio_fallback_after_quantity_filtering() -> N
             "quotes": (
                 quote_input.quotes[0],
                 quote_input.quotes[1],
-                quote_input.quotes[2].model_copy(update={"unit_price": 1_100}),
+                quote_input.quotes[2].model_copy(update={"unit_price": 330}),
             )
         }
     )
@@ -196,11 +196,11 @@ def test_baseline_validation_uses_ratio_fallback_after_quantity_filtering() -> N
         company_config,
     )
 
-    # 검증: 유사 수량 기록의 median 850 기준으로 ratio fallback issue가 생깁니다.
+    # 검증: 유사 수량 기록의 median 273 기준으로 ratio fallback issue가 생깁니다.
     assert result.risk_level == "warning"
     assert len(result.issues) == 1
-    assert result.issues[0].reference_value == 850.0
-    assert result.issues[0].score == pytest.approx(250 / 850)
+    assert result.issues[0].reference_value == 273.0
+    assert result.issues[0].score == pytest.approx(57 / 273)
 
 
 def test_company_config_reads_historical_quantity_multipliers() -> None:

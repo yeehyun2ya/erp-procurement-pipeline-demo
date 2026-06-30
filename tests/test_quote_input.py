@@ -17,12 +17,12 @@ def test_load_quote_comparison_reads_sample_json() -> None:
     quote_input = load_quote_comparison(sample_path)
 
     # Then: the main request fields are available as typed Python attributes.
-    assert quote_input.request_id == "PR-2026-0001"
+    assert quote_input.request_id == "20260605-0001"
     assert quote_input.company_id == "COMPANY-DEMO"
     assert quote_input.base_currency == "KRW"
-    assert quote_input.quantity == 25
-    assert quote_input.rfq_terms.expected_unit_price == 900
-    assert quote_input.rfq_terms.expected_delivery_date.isoformat() == "2026-07-15"
+    assert quote_input.quantity == 500
+    assert quote_input.rfq_terms.expected_unit_price == 273
+    assert quote_input.rfq_terms.expected_delivery_date.isoformat() == "2026-06-15"
 
 
 def test_load_quote_comparison_keeps_multiple_supplier_quotes() -> None:
@@ -34,10 +34,10 @@ def test_load_quote_comparison_keeps_multiple_supplier_quotes() -> None:
 
     # Then: every supplier quote is parsed into the typed quote list.
     assert len(quote_input.quotes) == 3
-    assert quote_input.item.name == "Hex bolt M12"
-    assert quote_input.quotes[0].supplier_id == "SUP-ALPHA"
-    assert quote_input.quotes[0].unit_price == 850
-    assert quote_input.quotes[1].memo == "Requires minimum order confirmation before shipment."
+    assert quote_input.item.name == "BOLT M12-40"
+    assert quote_input.quotes[0].supplier_id == "SUP-GAON"
+    assert quote_input.quotes[0].unit_price == 260
+    assert quote_input.quotes[1].memo == "우선 추천 공급업체, 단가와 납기 조건 확인 필요."
 
 
 def test_company_samples_keep_same_non_company_quote_terms() -> None:

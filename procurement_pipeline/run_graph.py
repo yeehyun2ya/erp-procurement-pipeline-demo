@@ -15,6 +15,7 @@ from procurement_pipeline.schemas.validation_routing_result import (
     HumanReviewTrigger,
     ValidationRouteAction,
 )
+from procurement_pipeline.schemas.validation_result import RiskLevel
 from procurement_pipeline.state import ProcurementState
 
 
@@ -50,6 +51,7 @@ class CompanyDemoSummary(BaseModel):
     config_path: str
     source_quote_company_id: str
     executed_quote_company_id: str
+    validation_risk_level: RiskLevel
     validation_route: ValidationRouteAction
     rfq_difference_route: RfqDifferenceRouteAction | None
     rfq_difference_status: RfqDifferenceStatus | None
@@ -102,6 +104,7 @@ def run_company_demo(quote_path: Path, config_path: Path) -> CompanyDemoSummary:
         config_path=config_path.as_posix(),
         source_quote_company_id=source_quote_input.company_id,
         executed_quote_company_id=result["quote_input"].company_id,
+        validation_risk_level=validation_result.risk_level,
         validation_route=result["routing_result"].selected_route,
         rfq_difference_route=rfq_difference_route,
         rfq_difference_status=rfq_difference_status,

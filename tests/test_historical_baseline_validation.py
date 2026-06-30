@@ -30,11 +30,11 @@ def test_load_historical_unit_prices_reads_sample_json() -> None:
     # 검증: 핵심 필드와 구매 기록이 typed object로 읽힙니다.
     assert historical_prices.company_id == "COMPANY-DEMO"
     assert historical_prices.base_currency == "KRW"
-    assert historical_prices.item.name == "Hex bolt M12"
+    assert historical_prices.item.name == "BOLT M12-40"
     assert len(historical_prices.purchase_records) == 10
     assert historical_prices.purchase_records[0].purchase_id == "PO-2025-0001"
-    assert historical_prices.purchase_records[0].unit_price == 1_180
-    assert historical_prices.purchase_records[0].quantity == 5
+    assert historical_prices.purchase_records[0].unit_price == 282
+    assert historical_prices.purchase_records[0].quantity == 260
 
 
 def test_baseline_validation_returns_normal_when_quotes_match_history() -> None:
@@ -68,7 +68,7 @@ def test_baseline_validation_warns_when_quote_exceeds_history() -> None:
             "quotes": (
                 quote_input.quotes[0],
                 quote_input.quotes[1],
-                quote_input.quotes[2].model_copy(update={"unit_price": 1_500}),
+                quote_input.quotes[2].model_copy(update={"unit_price": 500}),
             )
         }
     )
@@ -88,10 +88,10 @@ def test_baseline_validation_warns_when_quote_exceeds_history() -> None:
     assert issue.issue_code == "UNIT_PRICE_HISTORICAL_BASELINE_OUTLIER"
     assert issue.issue_code != "UNIT_PRICE_ROBUST_OUTLIER"
     assert issue.severity == "warning"
-    assert issue.related_supplier_id == "SUP-CHARLIE"
+    assert issue.related_supplier_id == "SUP-TAESUNG"
     assert issue.related_field == "unit_price"
-    assert issue.observed_value == 1_500
-    assert issue.reference_value == 845.0
+    assert issue.observed_value == 500
+    assert issue.reference_value == 270.0
     assert (
         issue.score
         >= company_config.amount_policy.historical_unit_price_robust_z_score_threshold
@@ -109,7 +109,7 @@ def test_baseline_validation_skips_issue_when_history_is_too_small() -> None:
     quote_with_high_price = quote_input.model_copy(
         update={
             "quotes": (
-                quote_input.quotes[0].model_copy(update={"unit_price": 1_500}),
+                quote_input.quotes[0].model_copy(update={"unit_price": 500}),
             )
         }
     )
@@ -132,7 +132,7 @@ def test_baseline_validation_uses_ratio_fallback_when_mad_is_zero() -> None:
     historical_prices = load_historical_unit_prices(HISTORICAL_PRICE_SAMPLE_PATH)
     company_config = load_company_config(Path("configs/companies/company_demo.json"))
     same_price_records = tuple(
-        record.model_copy(update={"unit_price": 850})
+        record.model_copy(update={"unit_price": 273})
         for record in historical_prices.purchase_records[:8]
     )
     zero_mad_history = historical_prices.model_copy(
@@ -143,7 +143,7 @@ def test_baseline_validation_uses_ratio_fallback_when_mad_is_zero() -> None:
             "quotes": (
                 quote_input.quotes[0],
                 quote_input.quotes[1],
-                quote_input.quotes[2].model_copy(update={"unit_price": 1_100}),
+                quote_input.quotes[2].model_copy(update={"unit_price": 330}),
             )
         }
     )
@@ -158,9 +158,9 @@ def test_baseline_validation_uses_ratio_fallback_when_mad_is_zero() -> None:
     # 검증: fallback 기준도 과거 baseline보다 크게 높은 공급사만 warning으로 기록합니다.
     assert result.risk_level == "warning"
     assert len(result.issues) == 1
-    assert result.issues[0].related_supplier_id == "SUP-CHARLIE"
-    assert result.issues[0].reference_value == 850.0
-    assert result.issues[0].score == pytest.approx(250 / 850)
+    assert result.issues[0].related_supplier_id == "SUP-TAESUNG"
+    assert result.issues[0].reference_value == 273.0
+    assert result.issues[0].score == pytest.approx(57 / 273)
 
 
 def test_baseline_validation_rejects_company_id_mismatch() -> None:
@@ -206,10 +206,10 @@ def test_baseline_validation_rejects_item_mismatch() -> None:
             company_config,
         )
 
-    assert exc_info.value.quote_item_name == "Hex bolt M12"
+    assert exc_info.value.quote_item_name == "BOLT M12-40"
     assert exc_info.value.historical_item_name == "Steel nut M12"
-    assert exc_info.value.quote_item_category == "Industrial fasteners"
-    assert exc_info.value.historical_item_category == "Industrial fasteners"
+    assert exc_info.value.quote_item_category == "볼트류"
+    assert exc_info.value.historical_item_category == "볼트류"
 
 
 def test_historical_purchase_record_rejects_negative_unit_price(tmp_path: Path) -> None:
@@ -221,13 +221,13 @@ def test_historical_purchase_record_rejects_negative_unit_price(tmp_path: Path) 
           "company_id": "COMPANY-DEMO",
           "base_currency": "KRW",
           "item": {
-            "name": "Hex bolt M12",
-            "category": "Industrial fasteners"
+            "name": "BOLT M12-40",
+            "category": "볼트류"
           },
           "purchase_records": [
             {
               "purchase_id": "PO-2025-0001",
-              "supplier_id": "SUP-ALPHA",
+              "supplier_id": "SUP-GAON",
               "unit_price": -1,
               "quantity": 20,
               "purchased_at": "2025-09-10"

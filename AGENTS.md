@@ -26,8 +26,8 @@ The same quote data can follow different validation and approval paths depending
 
 ## Current Issue Scope
 
-Issue 11 demonstrates company-specific branching with the same quote data.
+Issue 13 connects the existing graph demo to FastAPI and the app-managed SystemEver HTML mockup.
 
-Use one common quote JSON for the business quote data. Each demo execution reads that quote JSON and one company config, then the comparison runner calls the same execution for A/B/C configs.
+Use the same quote data with A/B/C company configs, expose the comparison through a FastAPI endpoint, and let the HTML mockup show the company-specific SRM flow without exposing internal debug panels or processing-history UI.
 
-Do not add LLM calls, FastAPI, real external ERP integration, or real approve/reject human decision handling in this issue.
+Do not add LLM calls, real external ERP integration, or real approve/reject human decision handling in this issue.

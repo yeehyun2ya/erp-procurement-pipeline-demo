@@ -2,78 +2,78 @@
   "company_id": "COMPANY-DEMO",
   "base_currency": "KRW",
   "item": {
-    "name": "Hex bolt M12",
-    "category": "Industrial fasteners"
+    "name": "BOLT M12-40",
+    "category": "볼트류"
   },
   "purchase_records": [
     {
       "purchase_id": "PO-2025-0001",
-      "supplier_id": "SUP-ALPHA",
-      "unit_price": 1180,
-      "quantity": 5,
+      "supplier_id": "SUP-GAON",
+      "unit_price": 282,
+      "quantity": 260,
       "purchased_at": "2025-09-10"
     },
     {
       "purchase_id": "PO-2025-0002",
-      "supplier_id": "SUP-BRAVO",
-      "unit_price": 1080,
-      "quantity": 8,
+      "supplier_id": "SUP-KANGLIM",
+      "unit_price": 278,
+      "quantity": 320,
       "purchased_at": "2025-10-02"
     },
     {
       "purchase_id": "PO-2025-0003",
-      "supplier_id": "SUP-CHARLIE",
-      "unit_price": 890,
-      "quantity": 18,
+      "supplier_id": "SUP-TAESUNG",
+      "unit_price": 275,
+      "quantity": 420,
       "purchased_at": "2025-11-18"
     },
     {
       "purchase_id": "PO-2025-0004",
-      "supplier_id": "SUP-ALPHA",
-      "unit_price": 860,
-      "quantity": 20,
+      "supplier_id": "SUP-GAON",
+      "unit_price": 268,
+      "quantity": 500,
       "purchased_at": "2025-12-04"
     },
     {
       "purchase_id": "PO-2025-0005",
-      "supplier_id": "SUP-BRAVO",
-      "unit_price": 850,
-      "quantity": 25,
+      "supplier_id": "SUP-KANGLIM",
+      "unit_price": 272,
+      "quantity": 540,
       "purchased_at": "2026-01-15"
     },
     {
       "purchase_id": "PO-2026-0006",
-      "supplier_id": "SUP-CHARLIE",
-      "unit_price": 840,
-      "quantity": 30,
+      "supplier_id": "SUP-TAESUNG",
+      "unit_price": 270,
+      "quantity": 600,
       "purchased_at": "2026-02-03"
     },
     {
       "purchase_id": "PO-2026-0007",
-      "supplier_id": "SUP-ALPHA",
-      "unit_price": 825,
-      "quantity": 40,
+      "supplier_id": "SUP-GAON",
+      "unit_price": 266,
+      "quantity": 750,
       "purchased_at": "2026-03-11"
     },
     {
       "purchase_id": "PO-2026-0008",
-      "supplier_id": "SUP-BRAVO",
-      "unit_price": 810,
-      "quantity": 50,
+      "supplier_id": "SUP-KANGLIM",
+      "unit_price": 264,
+      "quantity": 900,
       "purchased_at": "2026-04-08"
     },
     {
       "purchase_id": "PO-2026-0009",
-      "supplier_id": "SUP-ALPHA",
-      "unit_price": 650,
-      "quantity": 200,
+      "supplier_id": "SUP-TAESUNG",
+      "unit_price": 262,
+      "quantity": 1000,
       "purchased_at": "2026-05-12"
     },
     {
       "purchase_id": "PO-2026-0010",
-      "supplier_id": "SUP-BRAVO",
-      "unit_price": 520,
-      "quantity": 1000,
+      "supplier_id": "SUP-KANGLIM",
+      "unit_price": 258,
+      "quantity": 1200,
       "purchased_at": "2026-06-01"
     }
   ]

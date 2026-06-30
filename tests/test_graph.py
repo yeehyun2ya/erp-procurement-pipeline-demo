@@ -161,7 +161,7 @@ def test_graph_can_use_injected_external_delegation_adapter() -> None:
 
     # 검증: graph는 concrete mock이 아니라 주입된 adapter 응답을 state에 남깁니다.
     assert result["external_delegation_results"][0].mock_response_id == (
-        "CUSTOM-PR-2026-0001"
+        "CUSTOM-20260605-0001"
     )
 
 

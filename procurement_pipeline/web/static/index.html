@@ -1370,6 +1370,248 @@
       padding: 10px;
     }
 
+    .outcome-hero {
+      border: 2px solid var(--srm);
+      background: #fbfdfb;
+      padding: 12px;
+      margin-bottom: 12px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .outcome-hero-main {
+      display: grid;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .outcome-eyebrow {
+      color: var(--srm);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .outcome-hero-title {
+      margin: 0;
+      color: #173322;
+      font-size: 18px;
+      line-height: 1.3;
+    }
+
+    .outcome-hero-summary {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .outcome-hero-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .outcome-chip {
+      border: 1px solid #d4ddd4;
+      background: var(--panel);
+      padding: 7px 8px;
+      min-width: 0;
+    }
+
+    .outcome-chip span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .outcome-chip b {
+      color: var(--ink);
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    .outcome-chip.success {
+      border-color: #9fd3a7;
+      background: var(--srm-soft);
+    }
+
+    .outcome-chip.warning {
+      border-color: #ffd47a;
+      background: #fff7e6;
+    }
+
+    .outcome-chip.danger {
+      border-color: #f4b3b3;
+      background: #fff0f0;
+    }
+
+    .outcome-chip.info {
+      border-color: #b9d4ef;
+      background: #eef6ff;
+    }
+
+    .outcome-badge {
+      justify-self: end;
+      align-self: start;
+      border: 1px solid var(--srm);
+      background: var(--srm-soft);
+      color: #174d25;
+      padding: 5px 9px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .outcome-badge.warning {
+      border-color: #d68a00;
+      background: #fff0cc;
+      color: #8a5300;
+    }
+
+    .outcome-badge.danger {
+      border-color: var(--red);
+      background: #ffecec;
+      color: #9c2626;
+    }
+
+    .outcome-badge.info {
+      border-color: #2f65a7;
+      background: #eef6ff;
+      color: #244f82;
+    }
+
+    .quote-route-reason {
+      grid-column: 1 / -1;
+      border: 2px solid var(--srm);
+      background: #f6fbf6;
+      padding: 0;
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 0;
+      align-items: stretch;
+    }
+
+    .quote-route-reason.warning {
+      border-color: #d68a00;
+      background: #fff9ec;
+    }
+
+    .quote-route-reason.danger {
+      border-color: var(--red);
+      background: #fff5f5;
+    }
+
+    .quote-route-reason.info {
+      border-color: #2f65a7;
+      background: #f4f8ff;
+    }
+
+    .quote-route-summary {
+      background: var(--srm);
+      color: #fff;
+      padding: 12px;
+      display: grid;
+      align-content: center;
+      gap: 6px;
+    }
+
+    .quote-route-reason.warning .quote-route-summary {
+      background: #2f65a7;
+      border-top: 4px solid var(--warning);
+    }
+
+    .quote-route-reason.danger .quote-route-summary {
+      background: #a83232;
+    }
+
+    .quote-route-reason.info .quote-route-summary {
+      background: #2f65a7;
+    }
+
+    .quote-route-label {
+      font-size: 11px;
+      font-weight: 800;
+      opacity: .9;
+    }
+
+    .srm-card .quote-route-title {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #fff;
+      font-size: 17px;
+      line-height: 1.3;
+    }
+
+    .quote-route-copy {
+      margin: 0;
+      color: rgba(255, 255, 255, .86);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .quote-route-facts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0;
+      background: var(--panel);
+    }
+
+    .quote-route-facts-title {
+      grid-column: 1 / -1;
+      border-left: 1px solid #d4ddd4;
+      border-bottom: 1px solid #d4ddd4;
+      background: #f7faf7;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 6px 10px;
+    }
+
+    .quote-route-fact {
+      border-left: 1px solid #d4ddd4;
+      background: var(--panel);
+      padding: 12px;
+      min-width: 0;
+      display: grid;
+      align-content: center;
+      gap: 4px;
+    }
+
+    .quote-route-fact span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .quote-route-fact b {
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.3;
+    }
+
+    .quote-route-fact.warning {
+      border-color: #ffd47a;
+      background: #fff7e6;
+    }
+
+    .quote-route-fact.danger {
+      border-color: #f4b3b3;
+      background: #fff0f0;
+    }
+
+    .quote-route-fact.info {
+      border-color: #b9d4ef;
+      background: #eef6ff;
+    }
+
     .current-tenant-badge {
       margin-left: auto;
       border: 1px solid var(--line-dark);
@@ -1487,6 +1729,11 @@
       }
 
       .tenant-option-list {
+        grid-template-columns: 1fr;
+      }
+
+      .quote-route-reason,
+      .quote-route-facts {
         grid-template-columns: 1fr;
       }
     }
@@ -3719,11 +3966,15 @@
 
     function srmSteps() {
       const flow = activeScreenFlow();
+      const showOutcomeStep = state.srmStep >= 4;
       return [
         ["공급업체 리스크 분석", "신뢰도 점수 산출"],
         ["RFQ Agent", "초안 생성 및 승인"],
         ["OCR 파싱 결과", "회신 견적 자동 추출"],
-        [flow?.fourth_step_title || "TCO 분석", flow ? "다음 업무 자동 전환" : "총비용 산출 및 추천"]
+        [
+          showOutcomeStep && flow ? flow.fourth_step_title : "다음 업무 판정",
+          showOutcomeStep && flow ? "판정 결과 확인" : "조건 확인 후 결정"
+        ]
       ];
     }
 
@@ -3791,19 +4042,100 @@
 
     function outcomeBody() {
       const flow = activeScreenFlow();
-      if (!flow) return tcoBody();
+      if (!flow) return outcomePendingBody();
+      const hero = renderOutcomeHero(flow.outcome_hero);
       switch (flow.current_flow) {
         case "tco_analysis":
-          return tcoBody();
+          return hero + tcoBody();
         case "rfq_resend":
-          return rfqResendBody();
+          return hero + rfqResendBody();
         case "human_review":
-          return humanReviewBody();
+          return hero + humanReviewBody();
         case "ocr_reparse":
-          return ocrReparseBody();
+          return hero + ocrReparseBody();
         default:
-          return tcoBody();
+          return hero + outcomePendingBody();
       }
+    }
+
+    function outcomePendingBody() {
+      const title = state.flowStatus === "error" ? "회사별 처리 결과를 불러오지 못했습니다." : "회사별 처리 결과를 불러오는 중입니다.";
+      const message = state.flowStatus === "error"
+        ? "잠시 후 다시 시도해 주세요."
+        : "A/B/C 회사 설정에 맞는 다음 화면을 확인하고 있습니다.";
+      return `
+        <div class="srm-card">
+          <h3>${title}</h3>
+          <div class="inside">
+            <div class="agent-note">${message}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function toneClass(tone) {
+      if (["success", "warning", "danger", "info"].includes(tone)) return tone;
+      return "info";
+    }
+
+    function renderOutcomeHero(outcome_hero) {
+      if (!outcome_hero) return "";
+      const badge = outcome_hero.badge || {};
+      const rows = Array.isArray(outcome_hero.decision_rows) ? outcome_hero.decision_rows : [];
+      return `
+        <section class="outcome-hero" aria-label="회사별 SRM 처리 결론">
+          <div class="outcome-hero-main">
+            <div class="outcome-eyebrow">${escapeHtml(outcome_hero.eyebrow || "회사별 처리 결과")}</div>
+            <h3 class="outcome-hero-title">${escapeHtml(outcome_hero.title || "다음 업무를 확인합니다.")}</h3>
+            <p class="outcome-hero-summary">${escapeHtml(outcome_hero.summary || "")}</p>
+            <div class="outcome-hero-meta">
+              ${rows.map(row => `
+                <div class="outcome-chip ${toneClass(row.tone)}">
+                  <span>${escapeHtml(row.label)}</span>
+                  <b>${escapeHtml(row.value)}</b>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+          <div class="outcome-badge ${toneClass(badge.tone)}">${escapeHtml(badge.label || "확인 필요")}</div>
+        </section>
+      `;
+    }
+
+    function renderQuoteRouteReason() {
+      const flow = activeScreenFlow();
+      const hero = flow?.outcome_hero;
+      if (!flow || !hero) {
+        return `
+          <section class="quote-route-reason info" aria-label="회사별 다음 업무 판단">
+            <div class="quote-route-summary">
+              <div class="quote-route-label">회사 기준 판정</div>
+              <h3 class="quote-route-title">다음 업무를 확인하는 중입니다.</h3>
+              <p class="quote-route-copy">추출한 단가, 납기, 특이사항을 회사별 기준과 비교하고 있습니다.</p>
+            </div>
+          </section>
+        `;
+      }
+      const badge = hero.badge || {};
+      const rows = Array.isArray(hero.decision_rows) ? hero.decision_rows : [];
+      return `
+        <section class="quote-route-reason ${toneClass(badge.tone)}" aria-label="회사별 다음 업무 판단">
+          <div class="quote-route-summary">
+            <div class="quote-route-label">회사 기준 판정</div>
+            <h3 class="quote-route-title">${escapeHtml(hero.title || flow.fourth_step_title)}</h3>
+            <p class="quote-route-copy">${escapeHtml(hero.summary || flow.screen_message)}</p>
+          </div>
+          <div class="quote-route-facts">
+            <div class="quote-route-facts-title">판정 결과</div>
+            ${rows.map(row => `
+              <div class="quote-route-fact ${toneClass(row.tone)}">
+                <span>${escapeHtml(row.label)}</span>
+                <b>${escapeHtml(row.value)}</b>
+              </div>
+            `).join("")}
+          </div>
+        </section>
+      `;
     }
 
     function rfqResendBody() {
@@ -3814,7 +4146,7 @@
           <div class="inside">
             <div class="agent-note">
               <b>${escapeHtml(result?.company_name || "선택 회사")} 기준 재확인이 필요합니다.</b><br>
-              회신 견적이 RFQ 원안 대비 허용 범위를 초과했습니다. TCO 분석으로 바로 넘기지 않고 공급업체에 재확인 요청을 생성합니다.
+              회신 견적이 RFQ 원안 대비 허용 범위를 초과했습니다. 공급업체에 조건 재확인 요청을 생성합니다.
             </div>
             <table class="tco-table">
               <thead><tr><th>검토 항목</th><th>판단</th><th>다음 업무</th></tr></thead>
@@ -3875,15 +4207,16 @@
     function srmFooter() {
       if (state.srmStep === 1) return `<span><b>상태:</b> 기준점수 통과 업체와 PR 특이사항 기반 예외 후보가 RFQ 대상으로 선정되었습니다.</span><button class="srm-btn" id="toRfq">RFQ 초안 생성 보기</button>`;
       if (state.srmStep === 2) return `<span><b>구매 담당자 승인 대기:</b> RAG 기반 RFQ 초안을 검토 후 발송합니다.</span><button class="srm-btn" id="approveRfq">RFQ 발송 승인</button>`;
-      if (state.srmStep === 3) return `<span><b>추출 완료:</b> 회신 견적 조건을 확인해 다음 업무 단계를 준비했습니다.</span><button class="srm-btn" id="toOutcome">${escapeHtml(activeScreenFlow()?.fourth_step_title || "TCO 분석")} 보기</button>`;
+      if (state.srmStep === 3) return `<span><b>추출 완료:</b> 회신 견적 조건을 확인해 다음 업무 단계를 준비했습니다.</span><button class="srm-btn" id="toOutcome">판정 결과 보기</button>`;
       if (state.srmStep === 4) return outcomeFooter();
       return "";
     }
 
     function outcomeFooter() {
       const flow = activeScreenFlow();
-      const label = escapeHtml(flow?.next_action_label || "구매품의로 진행");
-      return `<span><b>다음 업무:</b> ${escapeHtml(flow?.screen_message || "추천 결과를 확인한 뒤 구매품의로 진행합니다.")}</span><button class="srm-btn" id="flowNextAction">${label}</button>`;
+      const action = flow?.outcome_hero?.primary_action || {};
+      const label = escapeHtml(action.label || flow?.next_action_label || "회사별 결과 확인");
+      return `<span><b>다음 업무:</b> ${escapeHtml(flow?.screen_message || "회사별 처리 경로를 확인합니다.")}</span><button class="srm-btn" id="flowNextAction">${label}</button>`;
     }
 
     function xaiBody() {
@@ -4069,6 +4402,20 @@
     }
 
     function quoteParsingBody() {
+      const isPriceComparisonShortfall = activeScreenFlow()?.current_flow === "rfq_resend";
+      const quoteSummaryRows = isPriceComparisonShortfall
+        ? `
+                  <tr class="recommended"><td>A 가온정밀</td><td>260 KRW<br><span class="risk-cost">가격 조건 통과</span></td><td>2026-06-24</td><td>납기 변동 가능</td><td><span class="badge quote-status-ok">가격 통과</span></td></tr>
+                  <tr><td>B 강림스패너</td><td>285 KRW<br><span class="risk-cost">B사 기준 단가 초과</span></td><td>2026-06-15</td><td>특이사항 없음</td><td><span class="badge quote-status-warn">가격 초과</span></td></tr>
+                  <tr><td>C 태성볼트</td><td>275 KRW<br><span class="risk-cost">B사 기준 단가 초과</span></td><td>2026-06-18</td><td>품질 이슈 이력</td><td><span class="badge quote-status-warn">가격 초과</span></td></tr>
+                  <tr><td>D 거산정공</td><td>320 KRW<br><span class="risk-cost">B사 기준 단가 초과</span></td><td>2026-06-16</td><td>단가 높음</td><td><span class="badge quote-status-warn">가격 초과</span></td></tr>
+        `
+        : `
+                  <tr><td>A 가온정밀</td><td>260 KRW</td><td>2026-06-24</td><td>납기 변동 가능</td><td><span class="badge quote-status-risk">리스크 감지</span></td></tr>
+                  <tr class="recommended"><td>B 강림스패너</td><td>285 KRW</td><td>2026-06-15</td><td>특이사항 없음</td><td><span class="badge quote-status-ok">추출 완료</span></td></tr>
+                  <tr><td>C 태성볼트</td><td>275 KRW</td><td>2026-06-18</td><td>품질 이슈 이력</td><td><span class="badge quote-status-warn">검토 대상</span></td></tr>
+                  <tr><td>D 거산정공</td><td>320 KRW</td><td>2026-06-16</td><td>단가 높음</td><td><span class="badge quote-status-info">추출 완료</span></td></tr>
+        `;
       return `
         <div class="srm-card quote-card" style="margin-bottom:10px">
           <h3>견적서 자동 추출 결과</h3>
@@ -4095,13 +4442,11 @@
               <table class="tco-table">
                 <thead><tr><th>업체</th><th>단가</th><th>납기</th><th>특이사항</th><th>추출 상태</th></tr></thead>
                 <tbody>
-                  <tr><td>A 가온정밀</td><td>260 KRW</td><td>2026-06-24</td><td>납기 변동 가능</td><td><span class="badge quote-status-risk">리스크 감지</span></td></tr>
-                  <tr class="recommended"><td>B 강림스패너</td><td>285 KRW</td><td>2026-06-15</td><td>특이사항 없음</td><td><span class="badge quote-status-ok">추출 완료</span></td></tr>
-                  <tr><td>C 태성볼트</td><td>275 KRW</td><td>2026-06-18</td><td>품질 이슈 이력</td><td><span class="badge quote-status-warn">검토 대상</span></td></tr>
-                  <tr><td>D 거산정공</td><td>320 KRW</td><td>2026-06-16</td><td>단가 높음</td><td><span class="badge quote-status-info">추출 완료</span></td></tr>
+                  ${quoteSummaryRows}
                 </tbody>
               </table>
             </div>
+            ${renderQuoteRouteReason()}
           </div>
         </div>
       `;
@@ -4373,7 +4718,12 @@
       const flowNextAction = document.getElementById("flowNextAction");
       if (flowNextAction) flowNextAction.onclick = () => {
         const flow = activeScreenFlow();
-        if (!flow || flow.current_flow === "tco_analysis") {
+        const action = flow?.outcome_hero?.primary_action || {};
+        if (!flow) {
+          showToast("회사별 결과 확인", "회사별 처리 경로를 불러온 뒤 다음 업무로 이어집니다.");
+          return;
+        }
+        if (flow.current_flow === "tco_analysis") {
           const checked = srmPanel.querySelector("input[name='supplier']:checked");
           state.selectedSupplier = checked ? checked.value : "B";
           if (state.selectedSupplier !== "B") {
@@ -4382,22 +4732,22 @@
           }
           addAudit("TCO 기반 최종 업체 확정", "담당자② 김영규", "시스템 추천 B사 수용");
           state.closed = true;
-          showToast("구매품의로 이동", "TCO 기준 추천 업체와 단가를 구매품의 화면에서 이어서 확인합니다.");
+          showToast(action.toast_title || "구매품의로 이동", action.toast_message || "TCO 기준 추천 업체와 단가를 구매품의 화면에서 이어서 확인합니다.");
           closeSrmToApproval();
           return;
         }
         if (flow.current_flow === "rfq_resend") {
           addAudit("RFQ 재전송 요청", "Proactive SRM", "허용 범위 초과로 공급업체 재확인 요청");
-          showToast("RFQ 재전송 요청", "공급업체에 RFQ 조건 재확인 요청을 생성했습니다.");
+          showToast(action.toast_title || "RFQ 재전송 요청", action.toast_message || "공급업체에 RFQ 조건 재확인 요청을 생성했습니다.");
           return;
         }
         if (flow.current_flow === "human_review") {
           addAudit("담당자 검토 요청", "Proactive SRM", "담당자 판단이 필요한 RFQ 차이 감지");
-          showToast("담당자 검토 요청", "구매 담당자에게 검토 요청과 판단 근거를 전달했습니다.");
+          showToast(action.toast_title || "담당자 검토 요청", action.toast_message || "구매 담당자에게 검토 요청과 판단 근거를 전달했습니다.");
           return;
         }
         addAudit("OCR 재파싱 요청", "Proactive SRM", "공통 validation 기준 입력 신뢰도 확인 필요");
-        showToast("OCR 재파싱 요청", "견적서 OCR 재파싱 요청을 생성했습니다.");
+        showToast(action.toast_title || "OCR 재파싱 요청", action.toast_message || "견적서 OCR 재파싱 요청을 생성했습니다.");
       };
       const finishProcess = document.getElementById("finishProcess");
       if (finishProcess) finishProcess.onclick = async () => {

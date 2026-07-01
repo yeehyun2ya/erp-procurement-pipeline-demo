@@ -57,12 +57,37 @@ def test_demo_comparison_api_returns_screen_flow_for_each_company() -> None:
     assert flows["COMPANY-A"]["current_flow"] == "tco_analysis"
     assert flows["COMPANY-A"]["fourth_step_title"] == "TCO 분석"
     assert flows["COMPANY-A"]["next_action_label"] == "구매품의로 진행"
+    assert flows["COMPANY-A"]["outcome_hero"]["eyebrow"] == "A사 정상 흐름"
+    assert flows["COMPANY-A"]["outcome_hero"]["badge"]["label"] == "정상 흐름"
+    assert flows["COMPANY-A"]["outcome_hero"]["badge"]["tone"] == "success"
+    assert flows["COMPANY-A"]["outcome_hero"]["title"] == (
+        "허용 범위 안, TCO 분석으로 진행"
+    )
     assert flows["COMPANY-B"]["current_flow"] == "rfq_resend"
     assert flows["COMPANY-B"]["fourth_step_title"] == "RFQ 재전송"
     assert flows["COMPANY-B"]["next_action_label"] == "RFQ 재전송 요청"
+    assert flows["COMPANY-B"]["outcome_hero"]["eyebrow"] == "B사 최소 비교 기준 미달"
+    assert flows["COMPANY-B"]["outcome_hero"]["badge"]["label"] == "가격 조건 초과"
+    assert flows["COMPANY-B"]["outcome_hero"]["title"] == (
+        "가격 조건 통과 업체 부족"
+    )
+    assert flows["COMPANY-B"]["outcome_hero"]["decision_rows"][0]["value"] == (
+        "1개 / 최소 2개"
+    )
+    assert flows["COMPANY-B"]["outcome_hero"]["decision_rows"][1]["value"] == (
+        "TCO 비교 기준 미달"
+    )
+    assert "B사 정책 기준" in flows["COMPANY-B"]["outcome_hero"]["summary"]
+    assert "최소 2개" in flows["COMPANY-B"]["outcome_hero"]["summary"]
+    assert "A 가온정밀 1개" in flows["COMPANY-B"]["outcome_hero"]["summary"]
     assert flows["COMPANY-C"]["current_flow"] == "human_review"
     assert flows["COMPANY-C"]["fourth_step_title"] == "담당자 검토 요청"
     assert flows["COMPANY-C"]["next_action_label"] == "담당자 검토 요청"
+    assert flows["COMPANY-C"]["outcome_hero"]["eyebrow"] == "C사 납기 조건 초과"
+    assert flows["COMPANY-C"]["outcome_hero"]["badge"]["label"] == "납기 조건 초과"
+    assert flows["COMPANY-C"]["outcome_hero"]["decision_rows"][0]["value"] == (
+        "납기 허용 범위 초과"
+    )
 
 
 def test_root_serves_cleaned_systemever_mockup_html() -> None:
@@ -93,3 +118,20 @@ def test_root_serves_cleaned_systemever_mockup_html() -> None:
     assert "auditToggleBtn" not in response.text
     assert "회사별 config route" not in response.text
     assert "회사 config 기준" not in response.text
+    assert 'if (!flow) return tcoBody();' not in response.text
+    assert 'flow?.fourth_step_title || "TCO 분석"' not in response.text
+    assert "회사별 처리 결과를 불러오는 중입니다." in response.text
+    assert "renderOutcomeHero" in response.text
+    assert "renderQuoteRouteReason" in response.text
+    assert "다음 업무 판정" in response.text
+    assert "조건 확인 후 결정" in response.text
+    assert "판정 결과 보기" in response.text
+    assert 'id="toOutcome">${escapeHtml(activeScreenFlow()?.fourth_step_title' not in response.text
+    assert "왜 ${escapeHtml(flow.fourth_step_title)}인가" not in response.text
+    assert "회사 기준 판정" in response.text
+    assert "판정 결과" in response.text
+    assert "isPriceComparisonShortfall" in response.text
+    assert "B사 기준 단가 초과" in response.text
+    assert "가격 조건 통과" in response.text
+    assert "outcome_hero" in response.text
+    assert "decision_rows" in response.text

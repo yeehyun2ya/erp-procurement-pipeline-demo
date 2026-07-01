@@ -1,0 +1,239 @@
+{
+  "results": [
+    {
+      "company_id": "COMPANY-A",
+      "company_name": "Company A Manufacturing",
+      "request_id": "20260605-0001",
+      "quote_source_path": "data/sample_inputs/quote_comparison_shared.json",
+      "config_path": "configs/companies/company_a.json",
+      "source_quote_company_id": "COMPANY-SHARED",
+      "executed_quote_company_id": "COMPANY-A",
+      "validation": {
+        "risk_level": "normal",
+        "issue_codes": []
+      },
+      "routing": {
+        "validation_route": "proceed_tco",
+        "rfq_difference_route": "proceed_tco",
+        "rfq_difference_status": "within_tolerance",
+        "final_outcome": "tco_calculation",
+        "path_trace": [
+          "route_validation",
+          "rfq_difference",
+          "tco_calculation"
+        ],
+        "human_review_trigger": null
+      },
+      "screen_flow": {
+        "current_flow": "tco_analysis",
+        "srm_steps": [
+          "공급업체 리스크 분석",
+          "RFQ Agent",
+          "OCR 파싱 결과",
+          "TCO 분석"
+        ],
+        "fourth_step_title": "TCO 분석",
+        "screen_message": "RFQ 회신 조건이 허용 범위 안입니다. TCO 분석으로 이동해 최종 추천 업체를 확인합니다.",
+        "next_action_label": "구매품의로 진행",
+        "outcome_hero": {
+          "eyebrow": "A사 정상 흐름",
+          "title": "허용 범위 안, TCO 분석으로 진행",
+          "summary": "RFQ 회신 조건이 회사 기준 안에 있어 최종 총비용 비교가 이번 화면의 핵심 업무입니다.",
+          "badge": {
+            "label": "정상 흐름",
+            "tone": "success"
+          },
+          "decision_rows": [
+            {
+              "label": "판단",
+              "value": "RFQ 조건 통과",
+              "tone": "success"
+            },
+            {
+              "label": "주요 화면",
+              "value": "TCO 분석",
+              "tone": "info"
+            },
+            {
+              "label": "다음 업무",
+              "value": "구매품의 진행",
+              "tone": "success"
+            }
+          ],
+          "primary_action": {
+            "label": "구매품의로 진행",
+            "toast_title": "TCO 분석 완료",
+            "toast_message": "추천 공급업체와 총비용 근거를 구매품의 화면으로 넘깁니다."
+          }
+        }
+      },
+      "external_delegation_results": []
+    },
+    {
+      "company_id": "COMPANY-B",
+      "company_name": "Company B Manufacturing",
+      "request_id": "20260605-0001",
+      "quote_source_path": "data/sample_inputs/quote_comparison_shared.json",
+      "config_path": "configs/companies/company_b.json",
+      "source_quote_company_id": "COMPANY-SHARED",
+      "executed_quote_company_id": "COMPANY-B",
+      "validation": {
+        "risk_level": "normal",
+        "issue_codes": [
+          "RFQ_PRICE_TOLERANCE_EXCEEDED"
+        ]
+      },
+      "routing": {
+        "validation_route": "proceed_tco",
+        "rfq_difference_route": "resend_rfq",
+        "rfq_difference_status": "tolerance_exceeded",
+        "final_outcome": "rfq_resend",
+        "path_trace": [
+          "route_validation",
+          "rfq_difference",
+          "rfq_resend"
+        ],
+        "human_review_trigger": null
+      },
+      "screen_flow": {
+        "current_flow": "rfq_resend",
+        "srm_steps": [
+          "공급업체 리스크 분석",
+          "RFQ Agent",
+          "OCR 파싱 결과",
+          "RFQ 재전송"
+        ],
+        "fourth_step_title": "RFQ 재전송",
+        "screen_message": "B사 정책 기준에서 가격 조건을 통과한 공급업체가 최소 비교 기준보다 부족합니다. RFQ 재요청이 필요합니다.",
+        "next_action_label": "RFQ 재전송 요청",
+        "outcome_hero": {
+          "eyebrow": "B사 최소 비교 기준 미달",
+          "title": "가격 조건 통과 업체 부족",
+          "summary": "B사 정책 기준은 최소 2개 이상의 가격 조건 통과 견적이 있어야 TCO 비교를 진행합니다. 현재는 A 가온정밀 1개만 통과해 RFQ 재요청 대상으로 봅니다.",
+          "badge": {
+            "label": "가격 조건 초과",
+            "tone": "warning"
+          },
+          "decision_rows": [
+            {
+              "label": "가격 통과 업체",
+              "value": "1개 / 최소 2개",
+              "tone": "warning"
+            },
+            {
+              "label": "TCO 처리",
+              "value": "TCO 비교 기준 미달",
+              "tone": "danger"
+            },
+            {
+              "label": "다음 업무",
+              "value": "RFQ 재요청",
+              "tone": "warning"
+            }
+          ],
+          "primary_action": {
+            "label": "RFQ 재전송 요청",
+            "toast_title": "RFQ 재전송 요청",
+            "toast_message": "가격 조건 초과 사유와 함께 공급업체 재확인 요청을 생성합니다."
+          }
+        }
+      },
+      "external_delegation_results": [
+        {
+          "request_id": "20260605-0001",
+          "company_id": "COMPANY-B",
+          "delegation_type": "erp_approval_request",
+          "target_system": "erp_approval",
+          "status": "mock_accepted",
+          "mock_response_id": "MOCK-ERP-20260605-0001",
+          "issue_codes": [
+            "RFQ_PRICE_TOLERANCE_EXCEEDED"
+          ]
+        }
+      ]
+    },
+    {
+      "company_id": "COMPANY-C",
+      "company_name": "Company C Manufacturing",
+      "request_id": "20260605-0001",
+      "quote_source_path": "data/sample_inputs/quote_comparison_shared.json",
+      "config_path": "configs/companies/company_c.json",
+      "source_quote_company_id": "COMPANY-SHARED",
+      "executed_quote_company_id": "COMPANY-C",
+      "validation": {
+        "risk_level": "normal",
+        "issue_codes": [
+          "RFQ_DELIVERY_TOLERANCE_EXCEEDED"
+        ]
+      },
+      "routing": {
+        "validation_route": "proceed_tco",
+        "rfq_difference_route": "request_human_review",
+        "rfq_difference_status": "tolerance_exceeded",
+        "final_outcome": "human_review_request",
+        "path_trace": [
+          "route_validation",
+          "rfq_difference",
+          "human_review_request"
+        ],
+        "human_review_trigger": "rfq_difference"
+      },
+      "screen_flow": {
+        "current_flow": "human_review",
+        "srm_steps": [
+          "공급업체 리스크 분석",
+          "RFQ Agent",
+          "OCR 파싱 결과",
+          "담당자 검토 요청"
+        ],
+        "fourth_step_title": "담당자 검토 요청",
+        "screen_message": "RFQ 차이가 담당자 판단이 필요한 수준입니다. 구매 담당자에게 검토 요청을 생성합니다.",
+        "next_action_label": "담당자 검토 요청",
+        "outcome_hero": {
+          "eyebrow": "C사 납기 조건 초과",
+          "title": "납기 조건 초과, 담당자 검토 필요",
+          "summary": "회신 납기가 C사 허용 일수를 넘어 자동 재요청보다 구매 담당자 판단이 먼저 필요한 상태입니다.",
+          "badge": {
+            "label": "납기 조건 초과",
+            "tone": "warning"
+          },
+          "decision_rows": [
+            {
+              "label": "초과 항목",
+              "value": "납기 허용 범위 초과",
+              "tone": "warning"
+            },
+            {
+              "label": "자동 처리",
+              "value": "담당자 검토로 전환",
+              "tone": "info"
+            },
+            {
+              "label": "다음 업무",
+              "value": "구매 담당자 검토",
+              "tone": "warning"
+            }
+          ],
+          "primary_action": {
+            "label": "담당자 검토 요청",
+            "toast_title": "담당자 검토 요청",
+            "toast_message": "납기 조건 초과 사유와 판단 근거를 구매 담당자에게 전달합니다."
+          }
+        }
+      },
+      "external_delegation_results": [
+        {
+          "request_id": "20260605-0001",
+          "company_id": "COMPANY-C",
+          "delegation_type": "manager_notification",
+          "target_system": "procurement_notification",
+          "status": "mock_accepted",
+          "mock_response_id": "MOCK-NOTIFY-20260605-0001",
+          "issue_codes": [
+            "RFQ_DELIVERY_TOLERANCE_EXCEEDED"
+          ]
+        }
+      ]
+    }
+  ]
+}
